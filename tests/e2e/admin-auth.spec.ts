@@ -143,11 +143,19 @@ test("admin route requires login and allows access with valid password", async (
   await expect(
     page.getByRole("link", { name: "Export Experiment CSV" }),
   ).toBeVisible();
+  const uniqueMinImp = 51;
+  const uniqueMinLift = 0.21;
   const experimentExportResponse = await page.request.get(
-    "/api/admin/affiliate/experiments/export?window=7d",
+    `/api/admin/affiliate/experiments/export?window=7d&hub=/best-ai-automation-tools&minImp=${uniqueMinImp}&minLift=${uniqueMinLift}`,
   );
   expect(experimentExportResponse.status()).toBe(200);
   expect(experimentExportResponse.headers()["content-type"]).toContain("text/csv");
+  const auditLog = await fs.readFile(`${process.cwd()}/dev.log`, "utf8");
+  expect(auditLog).toContain('"scope":"affiliate_experiment_export"');
+  expect(auditLog).toContain('"windowKey":"7d"');
+  expect(auditLog).toContain('"hubPath":"/best-ai-automation-tools"');
+  expect(auditLog).toContain(`"minImpressionsPerVariant":${uniqueMinImp}`);
+  expect(auditLog).toContain(`"minAbsoluteLift":${uniqueMinLift}`);
   await expect(page.getByRole("link", { name: "All hubs" })).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 2, name: "Manual Backfill History" }),

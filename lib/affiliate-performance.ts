@@ -1403,6 +1403,37 @@ export async function auditAffiliateHubActionStatus(input: {
   }
 }
 
+export async function auditAffiliateExperimentExport(input: {
+  windowKey: "7d" | "30d" | "90d";
+  windowDays: number;
+  toolSlug?: string;
+  hubPath?: string;
+  minImpressionsPerVariant: number;
+  minAbsoluteLift: number;
+  rowCount: number;
+}): Promise<void> {
+  const line = JSON.stringify({
+    timestamp: new Date().toISOString(),
+    scope: "affiliate_experiment_export",
+    windowKey: input.windowKey,
+    windowDays: input.windowDays,
+    toolSlug: input.toolSlug?.trim() || undefined,
+    hubPath: input.hubPath?.trim() || undefined,
+    minImpressionsPerVariant: Math.max(
+      1,
+      Math.floor(input.minImpressionsPerVariant),
+    ),
+    minAbsoluteLift: Math.max(0, input.minAbsoluteLift),
+    rowCount: Math.max(0, Math.floor(input.rowCount)),
+  });
+
+  try {
+    await fs.appendFile(getAuditLogPath(), `${line}\n`, "utf8");
+  } catch {
+    // Intentionally non-blocking.
+  }
+}
+
 export async function deleteAffiliateManualMetricById(
   entryId: string,
 ): Promise<boolean> {

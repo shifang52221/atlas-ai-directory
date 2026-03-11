@@ -1,6 +1,9 @@
 import { NextRequest } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
-import { getAffiliatePerformanceData } from "@/lib/affiliate-performance";
+import {
+  auditAffiliateExperimentExport,
+  getAffiliatePerformanceData,
+} from "@/lib/affiliate-performance";
 
 type WindowKey = "7d" | "30d" | "90d";
 
@@ -73,6 +76,16 @@ export async function GET(request: NextRequest) {
     hubPath,
     minHubExperimentImpressionsPerVariant,
     minHubExperimentAbsoluteLift,
+  });
+  await auditAffiliateExperimentExport({
+    windowKey,
+    windowDays,
+    toolSlug: trendToolSlug,
+    hubPath,
+    minImpressionsPerVariant:
+      data.experimentThresholds.minImpressionsPerVariant,
+    minAbsoluteLift: data.experimentThresholds.minAbsoluteLift,
+    rowCount: data.hubExperimentConclusions.length,
   });
 
   const header = [
