@@ -24,6 +24,18 @@ test("tool detail page renders profile and monetization slots", async ({
     page.getByRole("heading", { level: 2, name: "FAQ" }),
   ).toBeVisible();
   await expect(
+    page.getByRole("heading", { level: 2, name: "Who this tool fits" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Avoid this tool if" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Implementation playbook" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Risk controls" }),
+  ).toBeVisible();
+  await expect(
     page.getByText("Is Zapier AI worth it for RevOps and SMB operations teams?"),
   ).toBeVisible();
   await expect(

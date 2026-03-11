@@ -21,6 +21,10 @@ export type ToolDetailUseCaseLink = {
 export type ToolDetailSeoContent = {
   reviewScore: number;
   reviewSummary: string;
+  fitSignals: string[];
+  avoidSignals: string[];
+  implementationPlan: string[];
+  riskControls: string[];
   faqItems: ToolDetailFaqItem[];
   alternativeSlugs: string[];
   useCaseLinks: ToolDetailUseCaseLink[];
@@ -29,6 +33,10 @@ export type ToolDetailSeoContent = {
 type CuratedSeoOverride = {
   reviewScore: number;
   reviewSummary: string;
+  fitSignals: string[];
+  avoidSignals: string[];
+  implementationPlan: string[];
+  riskControls: string[];
   faqItems: ToolDetailFaqItem[];
   alternativeSlugs: string[];
   useCaseLinks: ToolDetailUseCaseLink[];
@@ -48,6 +56,26 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
     reviewScore: 4.7,
     reviewSummary:
       "Zapier AI delivers the strongest speed-to-value for RevOps and SMB operations teams that need reliable multi-app automation with minimal engineering dependency.",
+    fitSignals: [
+      "You need to launch production automation quickly without heavy developer bandwidth",
+      "Your workflows span CRM, support, and internal systems with frequent handoffs",
+      "Ops leadership prioritizes reliability and cross-team adoption over deep custom logic",
+    ],
+    avoidSignals: [
+      "You require full infrastructure ownership and custom execution environments",
+      "Your core workflows depend on deeply nested branching and low-level code control",
+    ],
+    implementationPlan: [
+      "Week 1: map top 3 repetitive workflows and define success metrics",
+      "Week 2: launch one workflow per function with QA and owner signoff",
+      "Week 3: add error alerts and fallback runbooks for failed automations",
+      "Week 4: standardize naming, permissions, and template governance",
+    ],
+    riskControls: [
+      "Track task-volume spikes weekly to prevent hidden cost escalation",
+      "Lock app credentials and role scopes before enabling team-wide editing",
+      "Audit failed runs and duplicate triggers at least once per sprint",
+    ],
     faqItems: [
       {
         question: "Is Zapier AI worth it for RevOps and SMB operations teams?",
@@ -90,6 +118,26 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
     reviewScore: 4.6,
     reviewSummary:
       "Make is a strong choice for operators who need visual control across branching logic, multi-step orchestration, and transparent workflow debugging.",
+    fitSignals: [
+      "Your workflows require visible branching and conditional routing logic",
+      "Operators need strong scenario-level debugging and execution transparency",
+      "You can assign owners to maintain larger automation graphs over time",
+    ],
+    avoidSignals: [
+      "Your team mostly needs lightweight one-step automations with minimal branching",
+      "No one can own long-term scenario maintenance and logic documentation",
+    ],
+    implementationPlan: [
+      "Week 1: document branching requirements for your top 2 cross-team workflows",
+      "Week 2: build pilot scenarios and validate data mapping at each branch",
+      "Week 3: add observability for failed modules and retry thresholds",
+      "Week 4: templatize reusable modules and enforce change review",
+    ],
+    riskControls: [
+      "Set operation consumption alerts per high-volume scenario",
+      "Require peer review before publishing scenario updates to production",
+      "Use environment-separated credentials to reduce accidental breakage",
+    ],
     faqItems: [
       {
         question: "Who should pick Make over other automation tools?",
@@ -132,6 +180,26 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
     reviewScore: 4.5,
     reviewSummary:
       "n8n is best for technical teams that value ownership, extensibility, and long-term cost control through open and self-hosted automation architecture.",
+    fitSignals: [
+      "Engineering or DevOps can manage hosting, security, and deployment workflows",
+      "You need extensible automation logic with custom nodes or internal APIs",
+      "Long-term cost control and platform ownership are strategic priorities",
+    ],
+    avoidSignals: [
+      "No technical owner is available for operations, upgrades, and incident response",
+      "Your team needs a fully managed no-maintenance automation environment",
+    ],
+    implementationPlan: [
+      "Week 1: choose hosted vs self-hosted based on compliance and owner capacity",
+      "Week 2: deploy baseline environment with secrets management and backup policy",
+      "Week 3: ship one production workflow with monitoring and alerting hooks",
+      "Week 4: harden uptime, document runbooks, and expand to adjacent workflows",
+    ],
+    riskControls: [
+      "Patch and upgrade runtime dependencies on a fixed maintenance cadence",
+      "Enforce role-based access and credential rotation for all connectors",
+      "Track queue failures, retries, and latency budgets with alert thresholds",
+    ],
     faqItems: [
       {
         question: "When is n8n a better choice than managed platforms?",
@@ -152,6 +220,16 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
         answer:
           "Compare cloud operation cost versus self-hosted infrastructure overhead at your projected automation volume.",
       },
+      {
+        question: "n8n vs Zapier AI: which is better for technical teams?",
+        answer:
+          "n8n is typically stronger for control and extensibility, while Zapier AI is usually faster to launch for mixed or non-technical teams.",
+      },
+      {
+        question: "What are the best n8n alternatives to benchmark first?",
+        answer:
+          "Start with Make and Zapier AI for managed workflow trade-offs, then include Relevance AI when agent orchestration is part of scope.",
+      },
     ],
     alternativeSlugs: ["zapier-ai", "make", "relevance-ai"],
     useCaseLinks: [
@@ -164,6 +242,26 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
     reviewScore: 4.6,
     reviewSummary:
       "Clay is one of the strongest enrichment-first choices for GTM teams that need faster targeting cycles, tighter outbound sequencing, and signal-driven prospecting workflows.",
+    fitSignals: [
+      "Your GTM motion depends on enrichment quality before outbound sequencing",
+      "RevOps can enforce field standards and list hygiene across sales workflows",
+      "Teams need fast signal-to-action execution for prospect prioritization",
+    ],
+    avoidSignals: [
+      "Your use case is mostly back-office automation with little GTM focus",
+      "No owner can monitor enrichment drift or credit usage economics",
+    ],
+    implementationPlan: [
+      "Week 1: define ICP segments, required enrichment schema, and QA thresholds",
+      "Week 2: pilot one enrichment-to-outreach flow with strict sample review",
+      "Week 3: add routing rules and monitor response quality by segment",
+      "Week 4: scale winning plays and freeze governance for field updates",
+    ],
+    riskControls: [
+      "Set weekly credit budgets tied to outbound conversion checkpoints",
+      "Audit enrichment accuracy by segment to catch provider drift early",
+      "Block low-confidence records from auto-entering outreach sequences",
+    ],
     faqItems: [
       {
         question: "Is Clay a strong choice for modern outbound and enrichment workflows?",
@@ -184,6 +282,16 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
         answer:
           "Model expected enrichment usage and outbound volume together, then validate cost at your target campaign cadence.",
       },
+      {
+        question: "Clay vs Make: what should GTM operators compare first?",
+        answer:
+          "Compare enrichment depth, signal freshness, and outbound workflow handoff quality rather than generic automation breadth.",
+      },
+      {
+        question: "What are the best Clay alternatives to evaluate for outbound teams?",
+        answer:
+          "Start with Apollo-style enrichment stacks and Make or Zapier AI when your workflow needs broader cross-functional automation.",
+      },
     ],
     alternativeSlugs: ["zapier-ai", "make", "relevance-ai"],
     useCaseLinks: [
@@ -196,6 +304,26 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
     reviewScore: 4.6,
     reviewSummary:
       "Relevance AI stands out for teams building role-based agent systems where repeatable multi-agent execution and workflow governance matter more than one-off automation speed.",
+    fitSignals: [
+      "You need role-based agent orchestration across multiple teams",
+      "Workflow governance and repeatability matter more than one-off prompt speed",
+      "Your organization can define clear QA standards for agent outputs",
+    ],
+    avoidSignals: [
+      "Use cases are still ad-hoc with no repeatable task boundaries",
+      "No owner is accountable for prompt quality, review, and escalation",
+    ],
+    implementationPlan: [
+      "Week 1: define agent roles, handoffs, and approval boundaries",
+      "Week 2: deploy one multi-agent pilot on a repeatable workflow",
+      "Week 3: add quality scoring, human checkpoints, and failure alerts",
+      "Week 4: expand coverage and standardize reusable agent templates",
+    ],
+    riskControls: [
+      "Require citation and evidence checks for high-impact recommendations",
+      "Track agent drift and prompt changes with versioned governance",
+      "Enforce review gates for escalations and policy-sensitive tasks",
+    ],
     faqItems: [
       {
         question: "Who should use Relevance AI?",
@@ -238,6 +366,26 @@ const curatedOverrides: Record<string, CuratedSeoOverride> = {
     reviewScore: 4.5,
     reviewSummary:
       "Lindy is an effective operator-first option for SMB teams that want agent workflows running quickly across inbox, support handoffs, and recurring communication-heavy operations.",
+    fitSignals: [
+      "You want quick operator-led deployment for inbox and support workflows",
+      "SMB teams need practical templates over heavy custom engineering",
+      "You can monitor handoff quality and escalation reliability weekly",
+    ],
+    avoidSignals: [
+      "You require enterprise-grade multi-agent governance across many departments",
+      "Your workflows demand extensive custom infrastructure control from day one",
+    ],
+    implementationPlan: [
+      "Week 1: define target inbox/support tasks and escalation rules",
+      "Week 2: launch one production assistant with human approval steps",
+      "Week 3: track response quality and handoff exceptions daily",
+      "Week 4: templatize winning prompts and expand to adjacent teams",
+    ],
+    riskControls: [
+      "Set guardrails for low-confidence responses and mandatory fallback routes",
+      "Review handoff transcripts weekly to reduce repeated failure patterns",
+      "Limit permissions by workflow to avoid over-broad agent actions",
+    ],
     faqItems: [
       {
         question: "Is Lindy good for operator-led support and inbox workflows?",
@@ -310,6 +458,38 @@ function toDefaultFaqItems(input: ToolDetailSeoInput): ToolDetailFaqItem[] {
   ];
 }
 
+function toDefaultFitSignals(input: ToolDetailSeoInput): string[] {
+  return [
+    `Your team needs repeatable ${input.categories[0] || "automation"} workflows with clear ownership`,
+    "You can define quality gates before broad rollout across teams",
+    "Operational metrics are tracked weekly and tied to workflow outcomes",
+  ];
+}
+
+function toDefaultAvoidSignals(input: ToolDetailSeoInput): string[] {
+  return [
+    `${input.name} is a poor fit when process ownership is still unclear`,
+    "Avoid rollout if baseline workflow metrics are missing or inconsistent",
+  ];
+}
+
+function toDefaultImplementationPlan(input: ToolDetailSeoInput): string[] {
+  return [
+    `Week 1: baseline your current ${input.categories[0] || "automation"} workflow and map handoffs`,
+    `Week 2: launch one production pilot using ${input.name} with explicit QA checkpoints`,
+    "Week 3: add monitoring, alerting, and fallback paths for failure recovery",
+    "Week 4: scale to adjacent workflows only after KPI stability is confirmed",
+  ];
+}
+
+function toDefaultRiskControls(input: ToolDetailSeoInput): string[] {
+  return [
+    `Set weekly usage and spend guardrails before scaling ${input.name}`,
+    "Define escalation ownership for workflow failures and exception handling",
+    "Run a weekly audit on data quality, retries, and downstream handoff accuracy",
+  ];
+}
+
 function toDefaultAlternativeSlugs(input: ToolDetailSeoInput): string[] {
   return DEFAULT_ALTERNATIVE_POOL.filter((slug) => slug !== input.slug).slice(0, 3);
 }
@@ -351,6 +531,10 @@ export function getToolDetailSeoContent(input: ToolDetailSeoInput): ToolDetailSe
   return {
     reviewScore: toDefaultReviewScore(input),
     reviewSummary: toDefaultReviewSummary(input),
+    fitSignals: toDefaultFitSignals(input),
+    avoidSignals: toDefaultAvoidSignals(input),
+    implementationPlan: toDefaultImplementationPlan(input),
+    riskControls: toDefaultRiskControls(input),
     faqItems: toDefaultFaqItems(input),
     alternativeSlugs: toDefaultAlternativeSlugs(input),
     useCaseLinks: toDefaultUseCaseLinks(input),

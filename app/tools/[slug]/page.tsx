@@ -72,6 +72,10 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
     pricingLabel: profile.pricingLabel,
   });
   const reviewScore = seoContent.reviewScore;
+  const fitSignals = seoContent.fitSignals;
+  const avoidSignals = seoContent.avoidSignals;
+  const implementationPlan = seoContent.implementationPlan;
+  const riskControls = seoContent.riskControls;
   const faqItems = seoContent.faqItems;
   const useCaseLinks = seoContent.useCaseLinks;
   const isAdsEligible = isToolDetailAdsEligible({
@@ -265,6 +269,42 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
             <ul>
               {profile.comparisonNotes.map((item) => (
                 <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className={styles.card}>
+            <h2>Who this tool fits</h2>
+            <ul>
+              {fitSignals.map((item) => (
+                <li key={`fit-${item}`}>{item}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className={styles.card}>
+            <h2>Avoid this tool if</h2>
+            <ul>
+              {avoidSignals.map((item) => (
+                <li key={`avoid-${item}`}>{item}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className={styles.card}>
+            <h2>Implementation playbook</h2>
+            <ol className={styles.numberList}>
+              {implementationPlan.map((item) => (
+                <li key={`implementation-${item}`}>{item}</li>
+              ))}
+            </ol>
+          </article>
+
+          <article className={styles.card}>
+            <h2>Risk controls</h2>
+            <ul>
+              {riskControls.map((item) => (
+                <li key={`risk-${item}`}>{item}</li>
               ))}
             </ul>
           </article>

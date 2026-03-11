@@ -11,6 +11,15 @@ test("use-case detail page renders tool recommendations and ad slot", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: "Recommended tools" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Implementation playbook" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "KPI scorecard" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "FAQ" }),
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: "Open profile" }).first()).toHaveAttribute(
     "href",
     /\/tools\//,

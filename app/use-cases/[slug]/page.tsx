@@ -107,6 +107,17 @@ export default async function UseCaseDetailPage({
           },
         ],
       },
+      {
+        "@type": "FAQPage",
+        mainEntity: profile.faqItems.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      },
     ],
   };
 
@@ -168,6 +179,39 @@ export default async function UseCaseDetailPage({
 
           <aside className={styles.sideStack}>
             <article className={styles.card}>
+              <h2>Who this use case fits</h2>
+              <ul>
+                {profile.fitSignals.map((item) => (
+                  <li key={`fit-${item}`}>{item}</li>
+                ))}
+              </ul>
+              <h3 className={styles.cardSubhead}>Avoid this path if</h3>
+              <ul>
+                {profile.avoidSignals.map((item) => (
+                  <li key={`avoid-${item}`}>{item}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article className={styles.card}>
+              <h2>Implementation playbook</h2>
+              <ol className={styles.numberList}>
+                {profile.rolloutPlan.map((item) => (
+                  <li key={`plan-${item}`}>{item}</li>
+                ))}
+              </ol>
+            </article>
+
+            <article className={styles.card}>
+              <h2>KPI scorecard</h2>
+              <ul>
+                {profile.kpis.map((item) => (
+                  <li key={`kpi-${item}`}>{item}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article className={styles.card}>
               <h2>Evaluation checklist</h2>
               <ul>
                 {profile.checklist.map((item) => (
@@ -183,6 +227,18 @@ export default async function UseCaseDetailPage({
                   <Link key={item.name} href={item.href}>
                     {item.name}
                   </Link>
+                ))}
+              </div>
+            </article>
+
+            <article className={styles.card}>
+              <h2>FAQ</h2>
+              <div className={styles.faqList}>
+                {profile.faqItems.map((item) => (
+                  <details key={item.question} className={styles.faqItem}>
+                    <summary>{item.question}</summary>
+                    <p>{item.answer}</p>
+                  </details>
                 ))}
               </div>
             </article>

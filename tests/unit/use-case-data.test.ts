@@ -16,6 +16,11 @@ describe("use-case data", () => {
     expect(profile).not.toBeNull();
     expect(profile?.name).toBe("Support Automation");
     expect(profile?.tools.length).toBeGreaterThan(0);
+    expect(profile?.fitSignals.length).toBeGreaterThanOrEqual(3);
+    expect(profile?.avoidSignals.length).toBeGreaterThanOrEqual(2);
+    expect(profile?.kpis.length).toBeGreaterThanOrEqual(3);
+    expect(profile?.rolloutPlan.length).toBeGreaterThanOrEqual(4);
+    expect(profile?.faqItems.length).toBeGreaterThanOrEqual(4);
     expect(profile?.tools[0]?.outboundHref).toContain("/api/outbound?");
   });
 });

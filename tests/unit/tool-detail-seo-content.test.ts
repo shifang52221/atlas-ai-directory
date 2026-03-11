@@ -25,6 +25,10 @@ describe("tool detail seo content", () => {
     expect(content.faqItems.length).toBeGreaterThanOrEqual(6);
     expect(content.alternativeSlugs).toEqual(["make", "n8n", "relevance-ai"]);
     expect(content.useCaseLinks[0]?.href).toBe("/use-cases/ai-sales");
+    expect(content.fitSignals.length).toBeGreaterThanOrEqual(3);
+    expect(content.avoidSignals.length).toBeGreaterThanOrEqual(2);
+    expect(content.implementationPlan.length).toBeGreaterThanOrEqual(4);
+    expect(content.riskControls.length).toBeGreaterThanOrEqual(3);
   });
 
   it("uses curated overrides for clay, relevance-ai, and lindy", () => {
@@ -113,6 +117,8 @@ describe("tool detail seo content", () => {
     expect(
       make.faqItems.some((item) => item.question.includes("best Make alternatives")),
     ).toBe(true);
+    expect(make.implementationPlan.length).toBeGreaterThanOrEqual(4);
+    expect(make.riskControls.length).toBeGreaterThanOrEqual(3);
   });
 
   it("falls back to generated content for non-curated tools", () => {
@@ -130,5 +136,9 @@ describe("tool detail seo content", () => {
     expect(content.faqItems[0]?.question).toContain("Who should use Custom Tool");
     expect(content.alternativeSlugs).toHaveLength(3);
     expect(content.useCaseLinks.length).toBeGreaterThan(0);
+    expect(content.fitSignals.length).toBeGreaterThanOrEqual(3);
+    expect(content.avoidSignals.length).toBeGreaterThanOrEqual(2);
+    expect(content.implementationPlan.length).toBeGreaterThanOrEqual(4);
+    expect(content.riskControls.length).toBeGreaterThanOrEqual(3);
   });
 });
