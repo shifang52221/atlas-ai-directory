@@ -127,6 +127,32 @@ const adminSubmissionConvertSchema = z.object({
   submissionId: z.string().trim().min(1).max(120),
 });
 
+const affiliateMinImpressionsSchema = z
+  .union([z.string(), z.number()])
+  .optional()
+  .transform((value) => {
+    const text = String(value ?? "").trim();
+    if (!text) {
+      return undefined;
+    }
+    const parsed = Number.parseInt(text, 10);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  })
+  .pipe(z.number().int().min(1).max(100000).optional());
+
+const affiliateMinLiftSchema = z
+  .union([z.string(), z.number()])
+  .optional()
+  .transform((value) => {
+    const text = String(value ?? "").trim();
+    if (!text) {
+      return undefined;
+    }
+    const parsed = Number.parseFloat(text);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  })
+  .pipe(z.number().min(0).max(10).optional());
+
 const adminAffiliateBackfillSchema = z.object({
   toolSlug: z.string().trim().min(1).max(140),
   metricKind: z.enum(["IMPRESSION", "CONVERSION"]),
@@ -141,6 +167,8 @@ const adminAffiliateBackfillSchema = z.object({
     .enum(["ALL", "UNVERIFIED", "TODO", "TESTING", "VERIFIED", "DISMISSED"])
     .optional(),
   actionSort: z.enum(["UPDATED_DESC", "UPDATED_ASC"]).optional(),
+  minImp: affiliateMinImpressionsSchema,
+  minLift: affiliateMinLiftSchema,
 });
 
 const adminAffiliateBackfillDeleteSchema = z.object({
@@ -166,6 +194,8 @@ const adminAffiliateBackfillDeleteSchema = z.object({
     .enum(["ALL", "UNVERIFIED", "TODO", "TESTING", "VERIFIED", "DISMISSED"])
     .optional(),
   actionSort: z.enum(["UPDATED_DESC", "UPDATED_ASC"]).optional(),
+  minImp: affiliateMinImpressionsSchema,
+  minLift: affiliateMinLiftSchema,
 });
 
 const adminAffiliateBackfillCorrectSchema = z.object({
@@ -198,6 +228,8 @@ const adminAffiliateBackfillCorrectSchema = z.object({
     .enum(["ALL", "UNVERIFIED", "TODO", "TESTING", "VERIFIED", "DISMISSED"])
     .optional(),
   actionSort: z.enum(["UPDATED_DESC", "UPDATED_ASC"]).optional(),
+  minImp: affiliateMinImpressionsSchema,
+  minLift: affiliateMinLiftSchema,
 });
 
 const adminAffiliateHubActionSchema = z.object({
@@ -225,6 +257,8 @@ const adminAffiliateHubActionSchema = z.object({
     .enum(["ALL", "UNVERIFIED", "TODO", "TESTING", "VERIFIED", "DISMISSED"])
     .optional(),
   actionSort: z.enum(["UPDATED_DESC", "UPDATED_ASC"]).optional(),
+  minImp: affiliateMinImpressionsSchema,
+  minLift: affiliateMinLiftSchema,
 });
 
 const adminAffiliateHubBatchActionSchema = z.object({
@@ -252,6 +286,8 @@ const adminAffiliateHubBatchActionSchema = z.object({
     .enum(["ALL", "UNVERIFIED", "TODO", "TESTING", "VERIFIED", "DISMISSED"])
     .optional(),
   actionSort: z.enum(["UPDATED_DESC", "UPDATED_ASC"]).optional(),
+  minImp: affiliateMinImpressionsSchema,
+  minLift: affiliateMinLiftSchema,
 });
 
 export function parseSubmissionForm(formData: FormData) {
@@ -380,6 +416,8 @@ export function parseAdminAffiliateBackfillForm(formData: FormData) {
       actionSort === "UPDATED_DESC" || actionSort === "UPDATED_ASC"
         ? actionSort
         : undefined,
+    minImp: toStringValue(formData, "minImp"),
+    minLift: toStringValue(formData, "minLift"),
   });
 }
 
@@ -411,6 +449,8 @@ export function parseAdminAffiliateBackfillDeleteForm(formData: FormData) {
       actionSort === "UPDATED_DESC" || actionSort === "UPDATED_ASC"
         ? actionSort
         : undefined,
+    minImp: toStringValue(formData, "minImp"),
+    minLift: toStringValue(formData, "minLift"),
   });
 }
 
@@ -446,6 +486,8 @@ export function parseAdminAffiliateBackfillCorrectForm(formData: FormData) {
       actionSort === "UPDATED_DESC" || actionSort === "UPDATED_ASC"
         ? actionSort
         : undefined,
+    minImp: toStringValue(formData, "minImp"),
+    minLift: toStringValue(formData, "minLift"),
   });
 }
 
@@ -479,6 +521,8 @@ export function parseAdminAffiliateHubActionForm(formData: FormData) {
       actionSort === "UPDATED_DESC" || actionSort === "UPDATED_ASC"
         ? actionSort
         : undefined,
+    minImp: toStringValue(formData, "minImp"),
+    minLift: toStringValue(formData, "minLift"),
   });
 }
 
@@ -517,5 +561,7 @@ export function parseAdminAffiliateHubBatchActionForm(formData: FormData) {
       actionSort === "UPDATED_DESC" || actionSort === "UPDATED_ASC"
         ? actionSort
         : undefined,
+    minImp: toStringValue(formData, "minImp"),
+    minLift: toStringValue(formData, "minLift"),
   });
 }

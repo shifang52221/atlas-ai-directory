@@ -172,6 +172,8 @@ describe("action schemas", () => {
         note: "network reconciliation",
         actionStatus: "TESTING",
         actionSort: "UPDATED_DESC",
+        minImp: 50,
+        minLift: 0.2,
       }),
     );
     expect(ok.success).toBe(true);
@@ -184,6 +186,17 @@ describe("action schemas", () => {
       }),
     );
     expect(bad.success).toBe(false);
+
+    const badThresholds = parseAdminAffiliateBackfillForm(
+      formDataFrom({
+        toolSlug: "zapier-ai",
+        metricKind: "CONVERSION",
+        count: 1,
+        minImp: 0,
+        minLift: -0.1,
+      }),
+    );
+    expect(badThresholds.success).toBe(false);
 
     const deleteOk = parseAdminAffiliateBackfillDeleteForm(
       formDataFrom({

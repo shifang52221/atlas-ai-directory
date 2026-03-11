@@ -936,6 +936,12 @@ export default async function AdminAffiliatePage({
             <input type="hidden" name="historyPage" value={String(data.manualHistory.page)} />
             <input type="hidden" name="actionStatus" value={actionStatus} />
             <input type="hidden" name="actionSort" value={actionSort} />
+            <input
+              type="hidden"
+              name="minImp"
+              value={String(selectedMinImpressionsPerVariant)}
+            />
+            <input type="hidden" name="minLift" value={String(selectedMinAbsoluteLift)} />
             <label htmlFor="batch-status">Batch status</label>
             <select id="batch-status" name="status" defaultValue="TESTING" aria-label="Batch status">
               <option value="TODO">TODO</option>
@@ -1007,6 +1013,16 @@ export default async function AdminAffiliatePage({
                         <input type="hidden" name="historyKind" value={historyKind} />
                         <input type="hidden" name="actionStatus" value={actionStatus} />
                         <input type="hidden" name="actionSort" value={actionSort} />
+                        <input
+                          type="hidden"
+                          name="minImp"
+                          value={String(selectedMinImpressionsPerVariant)}
+                        />
+                        <input
+                          type="hidden"
+                          name="minLift"
+                          value={String(selectedMinAbsoluteLift)}
+                        />
                         <select name="status" defaultValue={item.executionStatus}>
                           <option value="TODO">TODO</option>
                           <option value="TESTING">TESTING</option>
@@ -1073,6 +1089,12 @@ export default async function AdminAffiliatePage({
           {data.hubTrendPath && <input type="hidden" name="hub" value={data.hubTrendPath} />}
           <input type="hidden" name="actionStatus" value={actionStatus} />
           <input type="hidden" name="actionSort" value={actionSort} />
+          <input
+            type="hidden"
+            name="minImp"
+            value={String(selectedMinImpressionsPerVariant)}
+          />
+          <input type="hidden" name="minLift" value={String(selectedMinAbsoluteLift)} />
           <div className={styles.field}>
             <label htmlFor="affiliate-tool">Tool</label>
             <select id="affiliate-tool" name="toolSlug" required>
@@ -1200,6 +1222,16 @@ export default async function AdminAffiliatePage({
                         <input type="hidden" name="historyKind" value={historyKind} />
                         <input type="hidden" name="actionStatus" value={actionStatus} />
                         <input type="hidden" name="actionSort" value={actionSort} />
+                        <input
+                          type="hidden"
+                          name="minImp"
+                          value={String(selectedMinImpressionsPerVariant)}
+                        />
+                        <input
+                          type="hidden"
+                          name="minLift"
+                          value={String(selectedMinAbsoluteLift)}
+                        />
                         <input type="hidden" name="toolSlug" value={item.toolSlug} />
                         <input type="hidden" name="metricKind" value={item.kind} />
                         <input
@@ -1239,6 +1271,16 @@ export default async function AdminAffiliatePage({
                         <input type="hidden" name="historyKind" value={historyKind} />
                         <input type="hidden" name="actionStatus" value={actionStatus} />
                         <input type="hidden" name="actionSort" value={actionSort} />
+                        <input
+                          type="hidden"
+                          name="minImp"
+                          value={String(selectedMinImpressionsPerVariant)}
+                        />
+                        <input
+                          type="hidden"
+                          name="minLift"
+                          value={String(selectedMinAbsoluteLift)}
+                        />
                         <button type="submit">Delete</button>
                       </form>
                     </td>

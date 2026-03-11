@@ -24,6 +24,8 @@ function buildAffiliateRedirectHref(input: {
   historyKind?: "ALL" | "IMPRESSION" | "CONVERSION";
   actionStatus?: "ALL" | "UNVERIFIED" | "TODO" | "TESTING" | "VERIFIED" | "DISMISSED";
   actionSort?: "UPDATED_DESC" | "UPDATED_ASC";
+  minImp?: number;
+  minLift?: number;
   saved?: string;
   deleted?: string;
   corrected?: string;
@@ -58,6 +60,20 @@ function buildAffiliateRedirectHref(input: {
   if (input.actionSort && input.actionSort !== "UPDATED_DESC") {
     params.set("actionSort", input.actionSort);
   }
+  if (
+    typeof input.minImp === "number" &&
+    Number.isFinite(input.minImp) &&
+    input.minImp > 0
+  ) {
+    params.set("minImp", String(Math.floor(input.minImp)));
+  }
+  if (
+    typeof input.minLift === "number" &&
+    Number.isFinite(input.minLift) &&
+    input.minLift >= 0
+  ) {
+    params.set("minLift", String(input.minLift));
+  }
   if (input.saved) {
     params.set("saved", input.saved);
   }
@@ -82,6 +98,22 @@ function buildAffiliateRedirectHref(input: {
 
   const query = params.toString();
   return query ? `/admin/affiliate?${query}` : "/admin/affiliate";
+}
+
+function parseMinImpFromUnknown(value: unknown): number | undefined {
+  const parsed = Number.parseInt(String(value ?? "").trim(), 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return undefined;
+  }
+  return Math.min(100000, parsed);
+}
+
+function parseMinLiftFromUnknown(value: unknown): number | undefined {
+  const parsed = Number.parseFloat(String(value ?? "").trim());
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return undefined;
+  }
+  return Math.min(10, parsed);
 }
 
 export async function recordAffiliateBackfillAction(formData: FormData) {
@@ -115,6 +147,8 @@ export async function recordAffiliateBackfillAction(formData: FormData) {
                 | "UPDATED_DESC"
                 | "UPDATED_ASC")
             : undefined,
+        minImp: parseMinImpFromUnknown(formData.get("minImp")),
+        minLift: parseMinLiftFromUnknown(formData.get("minLift")),
         error: "validation",
       }),
     );
@@ -135,6 +169,8 @@ export async function recordAffiliateBackfillAction(formData: FormData) {
       hub: data.hub,
       actionStatus: data.actionStatus,
       actionSort: data.actionSort,
+      minImp: data.minImp,
+      minLift: data.minLift,
       saved: "1",
     }),
   );
@@ -171,6 +207,8 @@ export async function deleteAffiliateBackfillEntryAction(formData: FormData) {
                 | "UPDATED_DESC"
                 | "UPDATED_ASC")
             : undefined,
+        minImp: parseMinImpFromUnknown(formData.get("minImp")),
+        minLift: parseMinLiftFromUnknown(formData.get("minLift")),
         error: "validation",
       }),
     );
@@ -188,6 +226,8 @@ export async function deleteAffiliateBackfillEntryAction(formData: FormData) {
       historyKind: data.historyKind,
       actionStatus: data.actionStatus,
       actionSort: data.actionSort,
+      minImp: data.minImp,
+      minLift: data.minLift,
       deleted: deleted ? "1" : undefined,
       error: deleted ? undefined : "not_found",
     }),
@@ -225,6 +265,8 @@ export async function correctAffiliateBackfillEntryAction(formData: FormData) {
                 | "UPDATED_DESC"
                 | "UPDATED_ASC")
             : undefined,
+        minImp: parseMinImpFromUnknown(formData.get("minImp")),
+        minLift: parseMinLiftFromUnknown(formData.get("minLift")),
         error: "validation",
       }),
     );
@@ -247,6 +289,8 @@ export async function correctAffiliateBackfillEntryAction(formData: FormData) {
       historyKind: data.historyKind,
       actionStatus: data.actionStatus,
       actionSort: data.actionSort,
+      minImp: data.minImp,
+      minLift: data.minLift,
       corrected: corrected ? "1" : undefined,
       error: corrected ? undefined : "not_found",
     }),
@@ -286,6 +330,8 @@ export async function recordAffiliateHubActionStatusAction(formData: FormData) {
       actionSortRaw === "UPDATED_DESC" || actionSortRaw === "UPDATED_ASC"
         ? actionSortRaw
         : undefined;
+    const minImp = parseMinImpFromUnknown(formData.get("minImp"));
+    const minLift = parseMinLiftFromUnknown(formData.get("minLift"));
 
     redirect(
       buildAffiliateRedirectHref({
@@ -297,6 +343,8 @@ export async function recordAffiliateHubActionStatusAction(formData: FormData) {
         historyKind,
         actionStatus,
         actionSort,
+        minImp,
+        minLift,
         error: "validation",
       }),
     );
@@ -319,6 +367,8 @@ export async function recordAffiliateHubActionStatusAction(formData: FormData) {
       historyKind: data.historyKind,
       actionStatus: data.actionStatus,
       actionSort: data.actionSort,
+      minImp: data.minImp,
+      minLift: data.minLift,
       hubActionSaved: "1",
     }),
   );
@@ -357,6 +407,8 @@ export async function recordAffiliateHubBatchStatusAction(formData: FormData) {
       actionSortRaw === "UPDATED_DESC" || actionSortRaw === "UPDATED_ASC"
         ? actionSortRaw
         : undefined;
+    const minImp = parseMinImpFromUnknown(formData.get("minImp"));
+    const minLift = parseMinLiftFromUnknown(formData.get("minLift"));
 
     redirect(
       buildAffiliateRedirectHref({
@@ -368,6 +420,8 @@ export async function recordAffiliateHubBatchStatusAction(formData: FormData) {
         historyKind,
         actionStatus,
         actionSort,
+        minImp,
+        minLift,
         error: "validation",
       }),
     );
@@ -395,6 +449,8 @@ export async function recordAffiliateHubBatchStatusAction(formData: FormData) {
       historyKind: data.historyKind,
       actionStatus: data.status,
       actionSort: data.actionSort,
+      minImp: data.minImp,
+      minLift: data.minLift,
       hubActionBatchSaved: "1",
       hubActionBatchCount: uniquePaths.length,
     }),

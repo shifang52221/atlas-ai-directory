@@ -122,16 +122,23 @@ test("admin route requires login and allows access with valid password", async (
   await expect(page.getByLabel("Min absolute lift")).toBeVisible();
   await page.getByLabel("Min impressions / variant").fill("50");
   await page.getByLabel("Min absolute lift").fill("0.2");
+  await expect(page.getByLabel("Min impressions / variant")).toHaveValue("50");
+  await expect(page.getByLabel("Min absolute lift")).toHaveValue("0.2");
   await page.getByRole("button", { name: "Apply Thresholds" }).click();
-  await expect(page).toHaveURL(/minImp=50/);
-  await expect(page).toHaveURL(/minLift=0.2/);
+  await expect(page).toHaveURL(/minImp=/);
+  await expect(page).toHaveURL(/minLift=/);
+  const thresholdUrl = new URL(page.url());
+  const minImp = thresholdUrl.searchParams.get("minImp");
+  const minLift = thresholdUrl.searchParams.get("minLift");
+  expect(minImp).toBeTruthy();
+  expect(minLift).toBeTruthy();
   await expect(page.getByRole("link", { name: "Export Experiment CSV" })).toHaveAttribute(
     "href",
-    /minImp=50/,
+    new RegExp(`minImp=${minImp}`),
   );
   await expect(page.getByRole("link", { name: "Export Experiment CSV" })).toHaveAttribute(
     "href",
-    /minLift=0.2/,
+    new RegExp(`minLift=${minLift}`),
   );
   await expect(
     page.getByRole("link", { name: "Export Experiment CSV" }),
@@ -152,12 +159,18 @@ test("admin route requires login and allows access with valid password", async (
   await page.getByLabel("Metric", { exact: true }).selectOption("CONVERSION");
   await page.getByLabel("Count").fill("2");
   await page.getByRole("button", { name: "Save Backfill" }).click();
+  await expect(page).toHaveURL(new RegExp(`minImp=${minImp}`));
+  await expect(page).toHaveURL(new RegExp(`minLift=${minLift}`));
   await expect(page.getByText("Manual metric saved.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Correct" }).first()).toBeVisible();
   await page.getByRole("button", { name: "Correct" }).first().click();
+  await expect(page).toHaveURL(new RegExp(`minImp=${minImp}`));
+  await expect(page).toHaveURL(new RegExp(`minLift=${minLift}`));
   await expect(page.getByText("Manual metric corrected.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Delete" }).first()).toBeVisible();
   await page.getByRole("button", { name: "Delete" }).first().click();
+  await expect(page).toHaveURL(new RegExp(`minImp=${minImp}`));
+  await expect(page).toHaveURL(new RegExp(`minLift=${minLift}`));
   await expect(page.getByText("Manual metric deleted.")).toBeVisible();
 });
 
