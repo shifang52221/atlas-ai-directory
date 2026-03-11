@@ -156,6 +156,13 @@ test("admin route requires login and allows access with valid password", async (
   expect(auditLog).toContain('"hubPath":"/best-ai-automation-tools"');
   expect(auditLog).toContain(`"minImpressionsPerVariant":${uniqueMinImp}`);
   expect(auditLog).toContain(`"minAbsoluteLift":${uniqueMinLift}`);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { level: 3, name: "Recent Experiment Exports" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("cell", { name: "/best-ai-automation-tools" }).first(),
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: "All hubs" })).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 2, name: "Manual Backfill History" }),

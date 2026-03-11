@@ -200,6 +200,17 @@ export type AffiliateManualMetricHistory = {
   items: AffiliateManualMetricHistoryItem[];
 };
 
+export type AffiliateExperimentExportAuditItem = {
+  timestamp: string;
+  windowKey: "7d" | "30d" | "90d";
+  windowDays: number;
+  toolSlug?: string;
+  hubPath?: string;
+  minImpressionsPerVariant: number;
+  minAbsoluteLift: number;
+  rowCount: number;
+};
+
 export const DEFAULT_LOW_CVR_MIN_OUTBOUND_CLICKS = 20;
 export const DEFAULT_LOW_CVR_MAX_CONVERSION_RATE = 0.025;
 export const DEFAULT_LOW_HUB_CTR_MIN_IMPRESSIONS = 20;
@@ -236,6 +247,7 @@ export type AffiliatePerformanceData = {
   };
   lowHubCtrCandidates: AffiliateHubCtrRow[];
   hubActionRecommendations: AffiliateHubActionRecommendation[];
+  exportAuditHistory: AffiliateExperimentExportAuditItem[];
   topConverters: AffiliateToolPerformanceRow[];
   lowCvrCandidates: AffiliateToolPerformanceRow[];
   manualHistory: AffiliateManualMetricHistory;
@@ -493,6 +505,78 @@ function parseAffiliateHubActionLine(line: string): {
       pagePath,
       status: parsed.status,
       note,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function parseAffiliateExperimentExportLine(
+  line: string,
+): (AffiliateExperimentExportAuditItem & { timestampMs: number }) | null {
+  if (!line.trim()) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(line) as {
+      timestamp?: unknown;
+      scope?: unknown;
+      windowKey?: unknown;
+      windowDays?: unknown;
+      toolSlug?: unknown;
+      hubPath?: unknown;
+      minImpressionsPerVariant?: unknown;
+      minAbsoluteLift?: unknown;
+      rowCount?: unknown;
+    };
+
+    if (parsed.scope !== "affiliate_experiment_export") {
+      return null;
+    }
+
+    const timestampMs = toTimestampMs(parsed.timestamp);
+    if (timestampMs === null) {
+      return null;
+    }
+
+    const windowKey =
+      parsed.windowKey === "7d" || parsed.windowKey === "30d" || parsed.windowKey === "90d"
+        ? parsed.windowKey
+        : null;
+    if (!windowKey) {
+      return null;
+    }
+
+    const windowDays = toPositiveInt(parsed.windowDays);
+    const minImpressionsPerVariant = toPositiveInt(parsed.minImpressionsPerVariant);
+    const rowCount = Math.max(0, toPositiveInt(parsed.rowCount));
+    const minAbsoluteLift = Number(parsed.minAbsoluteLift);
+
+    if (
+      windowDays <= 0 ||
+      minImpressionsPerVariant <= 0 ||
+      !Number.isFinite(minAbsoluteLift) ||
+      minAbsoluteLift < 0
+    ) {
+      return null;
+    }
+
+    const toolSlug =
+      typeof parsed.toolSlug === "string" ? parsed.toolSlug.trim() || undefined : undefined;
+    const hubPath =
+      typeof parsed.hubPath === "string" ? parsed.hubPath.trim() || undefined : undefined;
+
+    return {
+      timestamp: new Date(timestampMs).toISOString(),
+      timestampMs,
+      windowKey,
+      windowDays,
+      toolSlug,
+      hubPath,
+      minImpressionsPerVariant,
+      minAbsoluteLift,
+      rowCount,
     };
   } catch {
     return null;
@@ -1215,6 +1299,46 @@ export function parseAffiliateHubActionStatusByPath(
   return statusByPath;
 }
 
+export function parseAffiliateExperimentExportHistory(
+  lines: string[],
+  options?: {
+    limit?: number;
+  },
+): AffiliateExperimentExportAuditItem[] {
+  const limit = Math.max(1, Math.min(200, Math.floor(options?.limit ?? 10)));
+  const items: Array<AffiliateExperimentExportAuditItem & { timestampMs: number; index: number }> =
+    [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const parsed = parseAffiliateExperimentExportLine(lines[index] || "");
+    if (!parsed) {
+      continue;
+    }
+    items.push({
+      ...parsed,
+      index,
+    });
+  }
+
+  items.sort((a, b) => {
+    if (a.timestampMs !== b.timestampMs) {
+      return b.timestampMs - a.timestampMs;
+    }
+    return b.index - a.index;
+  });
+
+  return items.slice(0, limit).map((item) => ({
+    timestamp: item.timestamp,
+    windowKey: item.windowKey,
+    windowDays: item.windowDays,
+    toolSlug: item.toolSlug,
+    hubPath: item.hubPath,
+    minImpressionsPerVariant: item.minImpressionsPerVariant,
+    minAbsoluteLift: item.minAbsoluteLift,
+    rowCount: item.rowCount,
+  }));
+}
+
 export function buildHubActionRowsForRecommendations(input: {
   lowCtrRows: AffiliateHubCtrRow[];
   labelsByPath: Map<string, string>;
@@ -1666,6 +1790,9 @@ export async function getAffiliatePerformanceData(options?: {
     toolSlug: options?.historyToolSlug,
     kind: options?.historyKind,
   });
+  const exportAuditHistory = parseAffiliateExperimentExportHistory(lines, {
+    limit: 12,
+  });
   const experimentThresholds = resolveExperimentThresholds({
     overrideMinImpressionsPerVariant:
       options?.minHubExperimentImpressionsPerVariant,
@@ -2013,6 +2140,7 @@ export async function getAffiliatePerformanceData(options?: {
       experimentThresholds,
       lowHubCtrCandidates,
       hubActionRecommendations,
+      exportAuditHistory,
       topConverters,
       lowCvrCandidates,
       manualHistory,
@@ -2108,6 +2236,7 @@ export async function getAffiliatePerformanceData(options?: {
       experimentThresholds,
       lowHubCtrCandidates,
       hubActionRecommendations,
+      exportAuditHistory,
       topConverters,
       lowCvrCandidates,
       manualHistory,

@@ -807,6 +807,42 @@ export default async function AdminAffiliatePage({
             Export Experiment CSV
           </Link>
         </p>
+        <h3>Recent Experiment Exports</h3>
+        {data.exportAuditHistory.length === 0 ? (
+          <p>No experiment export audit entries yet.</p>
+        ) : (
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Timestamp (UTC)</th>
+                  <th>Window</th>
+                  <th>Thresholds</th>
+                  <th>Scope</th>
+                  <th>Rows</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.exportAuditHistory.map((item, index) => (
+                  <tr key={`export-audit-${item.timestamp}-${item.windowKey}-${index}`}>
+                    <td>
+                      {new Date(item.timestamp).toISOString().replace("T", " ").slice(0, 19)}
+                    </td>
+                    <td>
+                      {item.windowKey} ({item.windowDays}d)
+                    </td>
+                    <td>
+                      minImp {item.minImpressionsPerVariant}, minLift{" "}
+                      {toPercent(item.minAbsoluteLift)}
+                    </td>
+                    <td>{item.hubPath || item.toolSlug || "All"}</td>
+                    <td>{item.rowCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         <h3>Experiment Decision Cards</h3>
         {data.hubExperimentConclusions.length === 0 ? (
           <p>No experiment conclusions yet.</p>

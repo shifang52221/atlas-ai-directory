@@ -14,6 +14,7 @@ import {
   getLowHubCtrCandidates,
   getLowCvrCandidates,
   getTopConverters,
+  parseAffiliateExperimentExportHistory,
   parseAffiliateHubActionStatusByPath,
   parseAffiliateManualConversionDailySeries,
   removeAffiliateManualMetricByIdFromLines,
@@ -971,6 +972,50 @@ describe("affiliate performance manual metric parser", () => {
     expect(thresholdsWithInvalidOverride).toEqual({
       minImpressionsPerVariant: 45,
       minAbsoluteLift: 0.35,
+    });
+  });
+
+  it("parses recent affiliate experiment export audits", () => {
+    const lines = [
+      JSON.stringify({
+        timestamp: "2026-03-11T10:00:00.000Z",
+        scope: "affiliate_experiment_export",
+        windowKey: "7d",
+        windowDays: 7,
+        toolSlug: "zapier-ai",
+        hubPath: "/best-ai-automation-tools",
+        minImpressionsPerVariant: 50,
+        minAbsoluteLift: 0.2,
+        rowCount: 4,
+      }),
+      "not-json",
+      JSON.stringify({
+        timestamp: "2026-03-11T10:05:00.000Z",
+        scope: "affiliate_experiment_export",
+        windowKey: "30d",
+        windowDays: 30,
+        minImpressionsPerVariant: 80,
+        minAbsoluteLift: 0.15,
+        rowCount: 6,
+      }),
+    ];
+
+    const history = parseAffiliateExperimentExportHistory(lines, { limit: 10 });
+    expect(history).toHaveLength(2);
+    expect(history[0]).toMatchObject({
+      timestamp: "2026-03-11T10:05:00.000Z",
+      windowKey: "30d",
+      windowDays: 30,
+      minImpressionsPerVariant: 80,
+      minAbsoluteLift: 0.15,
+      rowCount: 6,
+    });
+    expect(history[1]).toMatchObject({
+      timestamp: "2026-03-11T10:00:00.000Z",
+      windowKey: "7d",
+      toolSlug: "zapier-ai",
+      hubPath: "/best-ai-automation-tools",
+      rowCount: 4,
     });
   });
 });
