@@ -41,6 +41,13 @@ test("tool detail page renders profile and monetization slots", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: "Top Alternatives" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      level: 2,
+      name: "Compare Zapier AI Against Alternatives",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Zapier AI vs Make", { exact: false }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Make", exact: true })).toBeVisible();
   await expect(
     page.getByRole("link", { name: /Compare Zapier AI vs/i }).first(),
@@ -156,7 +163,7 @@ test("make tool detail exposes keyword-cluster faq coverage", async ({ page }) =
 
   await expect(page.getByRole("heading", { level: 1, name: "Make" })).toBeVisible();
   await expect(
-    page.getByText("Make vs Zapier AI: what should operators compare first?"),
+    page.getByText("Make vs Zapier AI: what should operators compare first?").first(),
   ).toBeVisible();
   await expect(
     page.getByText("best Make alternatives", { exact: false }),
@@ -168,7 +175,9 @@ test("relevance-ai and lindy detail pages expose keyword-cluster faq coverage", 
 }) => {
   await page.goto("/tools/relevance-ai");
   await expect(
-    page.getByText("Relevance AI vs Lindy: which is better for multi-agent orchestration?"),
+    page
+      .getByText("Relevance AI vs Lindy: which is better for multi-agent orchestration?")
+      .first(),
   ).toBeVisible();
   await expect(
     page.getByText("best Relevance AI alternatives", { exact: false }),
@@ -176,7 +185,7 @@ test("relevance-ai and lindy detail pages expose keyword-cluster faq coverage", 
 
   await page.goto("/tools/lindy");
   await expect(
-    page.getByText("Lindy vs Relevance AI: which one should SMB teams pick first?"),
+    page.getByText("Lindy vs Relevance AI: which one should SMB teams pick first?").first(),
   ).toBeVisible();
   await expect(
     page.getByText("best Lindy alternatives", { exact: false }),

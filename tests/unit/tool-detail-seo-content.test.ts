@@ -2,6 +2,46 @@ import { describe, expect, it } from "vitest";
 import { getToolDetailSeoContent } from "../../lib/tool-detail-seo-content";
 
 describe("tool detail seo content", () => {
+  it("keeps at least three explicit X vs Y faq questions for each core tool", () => {
+    const coreInputs = [
+      {
+        slug: "zapier-ai",
+        name: "Zapier AI",
+        categories: ["Automation", "Sales Ops"],
+      },
+      { slug: "make", name: "Make", categories: ["Automation", "Marketing"] },
+      { slug: "n8n", name: "n8n", categories: ["Automation", "No-Code"] },
+      { slug: "clay", name: "Clay", categories: ["Sales Ops", "Marketing"] },
+      {
+        slug: "relevance-ai",
+        name: "Relevance AI",
+        categories: ["AI Agents", "Sales Ops"],
+      },
+      {
+        slug: "lindy",
+        name: "Lindy",
+        categories: ["AI Agents", "Customer Support"],
+      },
+    ];
+
+    for (const tool of coreInputs) {
+      const content = getToolDetailSeoContent({
+        slug: tool.slug,
+        name: tool.name,
+        categories: tool.categories,
+        highlights: ["placeholder"],
+        comparisonNotes: ["placeholder"],
+        setupLabel: "~60 min",
+        pricingLabel: "From USD 19",
+      });
+      const vsFaqCount = content.faqItems.filter((item) =>
+        /\bvs\b/i.test(item.question),
+      ).length;
+
+      expect(vsFaqCount).toBeGreaterThanOrEqual(3);
+    }
+  });
+
   it("uses curated override for zapier-ai", () => {
     const content = getToolDetailSeoContent({
       slug: "zapier-ai",

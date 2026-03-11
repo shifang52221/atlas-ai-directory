@@ -273,6 +273,27 @@
   text-underline-offset: 2px;
 }
 
+.compareList {
+  margin: 10px 0 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.compareItem {
+  border: 1px solid color-mix(in oklab, var(--line) 84%, white 16%);
+  border-radius: 10px;
+  padding: 10px;
+  background: color-mix(in oklab, white 90%, var(--surface) 10%);
+}
+
+.compareQuestion {
+  margin: 0;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
 @media (max-width: 1024px) {
   .topbar {
     grid-template-columns: 1fr;

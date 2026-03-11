@@ -93,6 +93,16 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
       slug: alternativeSlug,
       name: fallbackToolMap.get(alternativeSlug)?.name || toDisplayNameFromSlug(alternativeSlug),
     }));
+  const compareFaqItems = faqItems.filter((item) => /\bvs\b/i.test(item.question)).slice(0, 3);
+  const compareItems =
+    compareFaqItems.length > 0
+      ? compareFaqItems
+      : alternatives.slice(0, 3).map((tool) => ({
+          question: `${profile.name} vs ${tool.name}: what should teams compare first?`,
+          answer:
+            profile.comparisonNotes[0] ||
+            "Compare setup friction, reliability, and cost at your expected usage.",
+        }));
   const editorialHubLinks = [
     {
       label: "Best AI Automation Tools for Ops Teams",
@@ -332,6 +342,18 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
                 </details>
               ))}
             </div>
+          </article>
+
+          <article className={styles.card}>
+            <h2>Compare {profile.name} Against Alternatives</h2>
+            <ul className={styles.compareList}>
+              {compareItems.map((item) => (
+                <li key={`compare-${item.question}`} className={styles.compareItem}>
+                  <p className={styles.compareQuestion}>{item.question}</p>
+                  <p>{item.answer}</p>
+                </li>
+              ))}
+            </ul>
           </article>
 
           <article className={styles.card}>
