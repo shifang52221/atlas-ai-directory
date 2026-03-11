@@ -35,6 +35,8 @@ type AdminAffiliatePageProps = {
     historyKind?: string;
     actionStatus?: string;
     actionSort?: string;
+    minImp?: string;
+    minLift?: string;
     saved?: string;
     deleted?: string;
     corrected?: string;
@@ -98,6 +100,22 @@ function parsePositivePage(value: string | undefined): number {
     return 1;
   }
   return parsed;
+}
+
+function parseMinImpressionsPerVariant(value: string | undefined): number | undefined {
+  const parsed = Number.parseInt(value || "", 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return undefined;
+  }
+  return Math.min(100000, parsed);
+}
+
+function parseMinAbsoluteLift(value: string | undefined): number | undefined {
+  const parsed = Number.parseFloat(value || "");
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return undefined;
+  }
+  return Math.min(10, parsed);
 }
 
 function toPercent(value: number): string {
@@ -167,6 +185,8 @@ function buildAffiliateHref(input: {
   historyKind?: HistoryKindKey;
   actionStatus?: ActionStatusKey;
   actionSort?: ActionSortKey;
+  minImpressionsPerVariant?: number;
+  minAbsoluteLift?: number;
 }): string {
   const params = new URLSearchParams();
 
@@ -194,6 +214,20 @@ function buildAffiliateHref(input: {
   if (input.historyPage && input.historyPage > 1) {
     params.set("historyPage", String(input.historyPage));
   }
+  if (
+    typeof input.minImpressionsPerVariant === "number" &&
+    Number.isFinite(input.minImpressionsPerVariant) &&
+    input.minImpressionsPerVariant > 0
+  ) {
+    params.set("minImp", String(Math.floor(input.minImpressionsPerVariant)));
+  }
+  if (
+    typeof input.minAbsoluteLift === "number" &&
+    Number.isFinite(input.minAbsoluteLift) &&
+    input.minAbsoluteLift >= 0
+  ) {
+    params.set("minLift", String(input.minAbsoluteLift));
+  }
 
   const query = params.toString();
   return query ? `/admin/affiliate?${query}` : "/admin/affiliate";
@@ -203,6 +237,8 @@ function buildExperimentExportHref(input: {
   window: WindowKey;
   toolSlug: string | null;
   hubPath?: string | null;
+  minImpressionsPerVariant?: number;
+  minAbsoluteLift?: number;
 }): string {
   const params = new URLSearchParams();
 
@@ -214,6 +250,20 @@ function buildExperimentExportHref(input: {
   }
   if (input.hubPath) {
     params.set("hub", input.hubPath);
+  }
+  if (
+    typeof input.minImpressionsPerVariant === "number" &&
+    Number.isFinite(input.minImpressionsPerVariant) &&
+    input.minImpressionsPerVariant > 0
+  ) {
+    params.set("minImp", String(Math.floor(input.minImpressionsPerVariant)));
+  }
+  if (
+    typeof input.minAbsoluteLift === "number" &&
+    Number.isFinite(input.minAbsoluteLift) &&
+    input.minAbsoluteLift >= 0
+  ) {
+    params.set("minLift", String(input.minAbsoluteLift));
   }
 
   const query = params.toString();
@@ -236,6 +286,8 @@ export default async function AdminAffiliatePage({
   const actionStatus = parseActionStatusKey(query.actionStatus);
   const actionSort = parseActionSortKey(query.actionSort);
   const historyPage = parsePositivePage(query.historyPage);
+  const minImpressionsPerVariant = parseMinImpressionsPerVariant(query.minImp);
+  const minAbsoluteLift = parseMinAbsoluteLift(query.minLift);
 
   const data = await getAffiliatePerformanceData({
     windowDays,
@@ -245,7 +297,13 @@ export default async function AdminAffiliatePage({
     historyPerPage: 12,
     historyToolSlug: historyToolSlug || undefined,
     historyKind: historyKind === "ALL" ? undefined : historyKind,
+    minHubExperimentImpressionsPerVariant: minImpressionsPerVariant,
+    minHubExperimentAbsoluteLift: minAbsoluteLift,
   });
+  const selectedMinImpressionsPerVariant =
+    minImpressionsPerVariant ?? data.experimentThresholds.minImpressionsPerVariant;
+  const selectedMinAbsoluteLift =
+    minAbsoluteLift ?? data.experimentThresholds.minAbsoluteLift;
 
   const outboundTrendMax = Math.max(
     1,
@@ -303,6 +361,31 @@ export default async function AdminAffiliatePage({
   );
   const hubActionStatusCounts = getHubActionStatusCounts(data.hubActionRecommendations);
   const batchFormId = "hub-action-batch-form";
+  const buildScopedAffiliateHref = (input: {
+    window: WindowKey;
+    toolSlug: string | null;
+    hubPath?: string | null;
+    historyPage?: number;
+    historyToolSlug?: string | null;
+    historyKind?: HistoryKindKey;
+    actionStatus?: ActionStatusKey;
+    actionSort?: ActionSortKey;
+  }) =>
+    buildAffiliateHref({
+      ...input,
+      minImpressionsPerVariant: selectedMinImpressionsPerVariant,
+      minAbsoluteLift: selectedMinAbsoluteLift,
+    });
+  const buildScopedExperimentExportHref = (input: {
+    window: WindowKey;
+    toolSlug: string | null;
+    hubPath?: string | null;
+  }) =>
+    buildExperimentExportHref({
+      ...input,
+      minImpressionsPerVariant: selectedMinImpressionsPerVariant,
+      minAbsoluteLift: selectedMinAbsoluteLift,
+    });
 
   return (
     <>
@@ -331,7 +414,7 @@ export default async function AdminAffiliatePage({
           {windowLinks.map((item) => (
             <Link
               key={item.key}
-              href={buildAffiliateHref({
+              href={buildScopedAffiliateHref({
                 window: item.key,
                 toolSlug: data.trendToolSlug,
                 hubPath: data.hubTrendPath,
@@ -441,7 +524,7 @@ export default async function AdminAffiliatePage({
           </p>
           <div className={styles.filterRow}>
             <Link
-              href={buildAffiliateHref({
+              href={buildScopedAffiliateHref({
                 window: windowKey,
                 toolSlug: null,
                 hubPath: data.hubTrendPath,
@@ -459,7 +542,7 @@ export default async function AdminAffiliatePage({
             {data.rows.slice(0, 12).map((row) => (
               <Link
                 key={row.toolSlug}
-                href={buildAffiliateHref({
+                href={buildScopedAffiliateHref({
                   window: windowKey,
                   toolSlug: row.toolSlug,
                   hubPath: data.hubTrendPath,
@@ -565,7 +648,7 @@ export default async function AdminAffiliatePage({
         </p>
         <div className={styles.filterRow}>
           <Link
-            href={buildAffiliateHref({
+            href={buildScopedAffiliateHref({
               window: windowKey,
               toolSlug: data.trendToolSlug,
               hubPath: null,
@@ -583,7 +666,7 @@ export default async function AdminAffiliatePage({
           {data.hubOptions.map((item) => (
             <Link
               key={item.path}
-              href={buildAffiliateHref({
+              href={buildScopedAffiliateHref({
                 window: windowKey,
                 toolSlug: data.trendToolSlug,
                 hubPath: item.path,
@@ -666,6 +749,38 @@ export default async function AdminAffiliatePage({
           absolute lift {"\u2265"}{" "}
           <strong>{toPercent(data.experimentThresholds.minAbsoluteLift)}</strong>.
         </p>
+        <form method="get" className={styles.filterSearchForm}>
+          <input type="hidden" name="window" value={windowKey} />
+          {data.trendToolSlug && <input type="hidden" name="tool" value={data.trendToolSlug} />}
+          {data.hubTrendPath && <input type="hidden" name="hub" value={data.hubTrendPath} />}
+          {historyToolSlug && <input type="hidden" name="historyTool" value={historyToolSlug} />}
+          <input type="hidden" name="historyKind" value={historyKind} />
+          <input type="hidden" name="historyPage" value={String(data.manualHistory.page)} />
+          <input type="hidden" name="actionStatus" value={actionStatus} />
+          <input type="hidden" name="actionSort" value={actionSort} />
+          <label htmlFor="min-imp">Min impressions / variant</label>
+          <input
+            id="min-imp"
+            name="minImp"
+            type="number"
+            min="1"
+            max="100000"
+            defaultValue={String(selectedMinImpressionsPerVariant)}
+            required
+          />
+          <label htmlFor="min-lift">Min absolute lift</label>
+          <input
+            id="min-lift"
+            name="minLift"
+            type="number"
+            min="0"
+            max="10"
+            step="0.01"
+            defaultValue={String(selectedMinAbsoluteLift)}
+            required
+          />
+          <button type="submit">Apply Thresholds</button>
+        </form>
         <p>
           Variant totals in selected window: A{" "}
           <strong>
@@ -683,7 +798,7 @@ export default async function AdminAffiliatePage({
         <p>
           <Link
             className={styles.filterRowLink}
-            href={buildExperimentExportHref({
+            href={buildScopedExperimentExportHref({
               window: windowKey,
               toolSlug: data.trendToolSlug,
               hubPath: data.hubTrendPath,
@@ -755,6 +870,12 @@ export default async function AdminAffiliatePage({
           {historyToolSlug && <input type="hidden" name="historyTool" value={historyToolSlug} />}
           <input type="hidden" name="historyKind" value={historyKind} />
           <input type="hidden" name="historyPage" value={String(data.manualHistory.page)} />
+          <input
+            type="hidden"
+            name="minImp"
+            value={String(selectedMinImpressionsPerVariant)}
+          />
+          <input type="hidden" name="minLift" value={String(selectedMinAbsoluteLift)} />
           <label htmlFor="action-status">Status</label>
           <select id="action-status" name="actionStatus" defaultValue={actionStatus}>
             <option value="ALL">All statuses</option>
@@ -784,7 +905,7 @@ export default async function AdminAffiliatePage({
           ).map(([statusKey, label]) => (
             <Link
               key={statusKey}
-              href={buildAffiliateHref({
+              href={buildScopedAffiliateHref({
                 window: windowKey,
                 toolSlug: data.trendToolSlug,
                 hubPath: data.hubTrendPath,
@@ -999,6 +1120,12 @@ export default async function AdminAffiliatePage({
           {data.hubTrendPath && <input type="hidden" name="hub" value={data.hubTrendPath} />}
           <input type="hidden" name="actionStatus" value={actionStatus} />
           <input type="hidden" name="actionSort" value={actionSort} />
+          <input
+            type="hidden"
+            name="minImp"
+            value={String(selectedMinImpressionsPerVariant)}
+          />
+          <input type="hidden" name="minLift" value={String(selectedMinAbsoluteLift)} />
           <label htmlFor="history-tool">Tool</label>
           <select
             id="history-tool"
@@ -1126,7 +1253,7 @@ export default async function AdminAffiliatePage({
             {data.manualHistory.page > 1 && (
               <Link
                 className={styles.filterRowLink}
-                href={buildAffiliateHref({
+                href={buildScopedAffiliateHref({
                   window: windowKey,
                   toolSlug: data.trendToolSlug,
                   hubPath: data.hubTrendPath,
@@ -1146,7 +1273,7 @@ export default async function AdminAffiliatePage({
             {data.manualHistory.page < data.manualHistory.totalPages && (
               <Link
                 className={styles.filterRowLink}
-                href={buildAffiliateHref({
+                href={buildScopedAffiliateHref({
                   window: windowKey,
                   toolSlug: data.trendToolSlug,
                   hubPath: data.hubTrendPath,
@@ -1202,3 +1329,4 @@ export default async function AdminAffiliatePage({
     </>
   );
 }
+

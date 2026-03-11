@@ -24,6 +24,22 @@ function toWindowDays(windowKey: WindowKey): number {
   return 7;
 }
 
+function parseMinImpressionsPerVariant(value: string | null): number | undefined {
+  const parsed = Number.parseInt(value || "", 10);
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return undefined;
+  }
+  return Math.min(100000, parsed);
+}
+
+function parseMinAbsoluteLift(value: string | null): number | undefined {
+  const parsed = Number.parseFloat(value || "");
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return undefined;
+  }
+  return Math.min(10, parsed);
+}
+
 function escapeCsvValue(value: string | number | boolean): string {
   const raw = String(value);
   if (!/[",\n\r]/.test(raw)) {
@@ -43,17 +59,27 @@ export async function GET(request: NextRequest) {
   const windowDays = toWindowDays(windowKey);
   const trendToolSlug = request.nextUrl.searchParams.get("tool") || undefined;
   const hubPath = request.nextUrl.searchParams.get("hub") || undefined;
+  const minHubExperimentImpressionsPerVariant = parseMinImpressionsPerVariant(
+    request.nextUrl.searchParams.get("minImp"),
+  );
+  const minHubExperimentAbsoluteLift = parseMinAbsoluteLift(
+    request.nextUrl.searchParams.get("minLift"),
+  );
   const generatedAt = new Date().toISOString();
 
   const data = await getAffiliatePerformanceData({
     windowDays,
     trendToolSlug,
     hubPath,
+    minHubExperimentImpressionsPerVariant,
+    minHubExperimentAbsoluteLift,
   });
 
   const header = [
     "generatedAt",
     "windowDays",
+    "minImpressionsPerVariant",
+    "minAbsoluteLift",
     "pagePath",
     "pageTitle",
     "decision",
@@ -68,6 +94,8 @@ export async function GET(request: NextRequest) {
     [
       escapeCsvValue(generatedAt),
       escapeCsvValue(windowDays),
+      escapeCsvValue(data.experimentThresholds.minImpressionsPerVariant),
+      escapeCsvValue(data.experimentThresholds.minAbsoluteLift),
       escapeCsvValue(item.pagePath),
       escapeCsvValue(item.pageTitle),
       escapeCsvValue(item.decision),

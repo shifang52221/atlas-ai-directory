@@ -332,26 +332,51 @@ function parseCountryCodeFromMetadata(
   return "UNSPECIFIED";
 }
 
-function getExperimentThresholdsFromEnv(): {
+export function resolveExperimentThresholds(input?: {
+  envMinImpressionsRaw?: string;
+  envMinAbsoluteLiftRaw?: string;
+  overrideMinImpressionsPerVariant?: number;
+  overrideMinAbsoluteLift?: number;
+}): {
   minImpressionsPerVariant: number;
   minAbsoluteLift: number;
 } {
-  const impressionsRaw = Number.parseInt(
-    process.env.AFFILIATE_HUB_MIN_IMPRESSIONS_PER_VARIANT || "",
-    10,
-  );
-  const liftRaw = Number.parseFloat(
-    process.env.AFFILIATE_HUB_MIN_ABSOLUTE_LIFT || "",
-  );
+  const envImpressionsRaw =
+    input?.envMinImpressionsRaw ??
+    process.env.AFFILIATE_HUB_MIN_IMPRESSIONS_PER_VARIANT ??
+    "";
+  const envLiftRaw =
+    input?.envMinAbsoluteLiftRaw ??
+    process.env.AFFILIATE_HUB_MIN_ABSOLUTE_LIFT ??
+    "";
+
+  const parsedEnvImpressions = Number.parseInt(envImpressionsRaw, 10);
+  const parsedEnvLift = Number.parseFloat(envLiftRaw);
+
+  const envMinImpressionsPerVariant =
+    Number.isFinite(parsedEnvImpressions) && parsedEnvImpressions > 0
+      ? parsedEnvImpressions
+      : DEFAULT_HUB_EXPERIMENT_MIN_IMPRESSIONS;
+  const envMinAbsoluteLift =
+    Number.isFinite(parsedEnvLift) && parsedEnvLift >= 0
+      ? parsedEnvLift
+      : DEFAULT_HUB_EXPERIMENT_MIN_ABSOLUTE_LIFT;
+
+  const overrideImpressions = input?.overrideMinImpressionsPerVariant;
+  const overrideLift = input?.overrideMinAbsoluteLift;
 
   const minImpressionsPerVariant =
-    Number.isFinite(impressionsRaw) && impressionsRaw > 0
-      ? impressionsRaw
-      : DEFAULT_HUB_EXPERIMENT_MIN_IMPRESSIONS;
+    Number.isFinite(overrideImpressions) &&
+    typeof overrideImpressions === "number" &&
+    overrideImpressions > 0
+      ? Math.floor(overrideImpressions)
+      : envMinImpressionsPerVariant;
   const minAbsoluteLift =
-    Number.isFinite(liftRaw) && liftRaw >= 0
-      ? liftRaw
-      : DEFAULT_HUB_EXPERIMENT_MIN_ABSOLUTE_LIFT;
+    Number.isFinite(overrideLift) &&
+    typeof overrideLift === "number" &&
+    overrideLift >= 0
+      ? overrideLift
+      : envMinAbsoluteLift;
 
   return {
     minImpressionsPerVariant,
@@ -1558,6 +1583,8 @@ export async function getAffiliatePerformanceData(options?: {
   historyPerPage?: number;
   historyToolSlug?: string;
   historyKind?: AffiliateManualMetricKind;
+  minHubExperimentImpressionsPerVariant?: number;
+  minHubExperimentAbsoluteLift?: number;
 }): Promise<AffiliatePerformanceData> {
   const windowDays = Math.min(90, Math.max(1, options?.windowDays ?? 7));
   const windowMs = windowDays * DAY_MS;
@@ -1608,7 +1635,11 @@ export async function getAffiliatePerformanceData(options?: {
     toolSlug: options?.historyToolSlug,
     kind: options?.historyKind,
   });
-  const experimentThresholds = getExperimentThresholdsFromEnv();
+  const experimentThresholds = resolveExperimentThresholds({
+    overrideMinImpressionsPerVariant:
+      options?.minHubExperimentImpressionsPerVariant,
+    overrideMinAbsoluteLift: options?.minHubExperimentAbsoluteLift,
+  });
 
   try {
     const db = getDb();

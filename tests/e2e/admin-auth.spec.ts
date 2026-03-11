@@ -118,6 +118,21 @@ test("admin route requires login and allows access with valid password", async (
   await expect(
     page.getByRole("heading", { level: 3, name: "Recommended Actions (7d)" }),
   ).toBeVisible();
+  await expect(page.getByLabel("Min impressions / variant")).toBeVisible();
+  await expect(page.getByLabel("Min absolute lift")).toBeVisible();
+  await page.getByLabel("Min impressions / variant").fill("50");
+  await page.getByLabel("Min absolute lift").fill("0.2");
+  await page.getByRole("button", { name: "Apply Thresholds" }).click();
+  await expect(page).toHaveURL(/minImp=50/);
+  await expect(page).toHaveURL(/minLift=0.2/);
+  await expect(page.getByRole("link", { name: "Export Experiment CSV" })).toHaveAttribute(
+    "href",
+    /minImp=50/,
+  );
+  await expect(page.getByRole("link", { name: "Export Experiment CSV" })).toHaveAttribute(
+    "href",
+    /minLift=0.2/,
+  );
   await expect(
     page.getByRole("link", { name: "Export Experiment CSV" }),
   ).toBeVisible();

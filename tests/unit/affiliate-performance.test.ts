@@ -17,6 +17,7 @@ import {
   parseAffiliateHubActionStatusByPath,
   parseAffiliateManualConversionDailySeries,
   removeAffiliateManualMetricByIdFromLines,
+  resolveExperimentThresholds,
   replaceAffiliateManualMetricByIdFromLines,
   parseAffiliateManualMetricHistory,
   parseAffiliateManualMetricEntries,
@@ -938,5 +939,38 @@ describe("affiliate performance manual metric parser", () => {
     expect(summary.outboundClicksB).toBe(27);
     expect(summary.ctrB).toBeCloseTo(27 / 210, 6);
     expect(summary.liftBvsA).toBeCloseTo((27 / 210 - 26 / 180) / (26 / 180), 6);
+  });
+
+  it("resolves experiment thresholds from env defaults and explicit overrides", () => {
+    const thresholdsFromEnv = resolveExperimentThresholds({
+      envMinImpressionsRaw: "45",
+      envMinAbsoluteLiftRaw: "0.35",
+    });
+    expect(thresholdsFromEnv).toEqual({
+      minImpressionsPerVariant: 45,
+      minAbsoluteLift: 0.35,
+    });
+
+    const thresholdsWithOverride = resolveExperimentThresholds({
+      envMinImpressionsRaw: "45",
+      envMinAbsoluteLiftRaw: "0.35",
+      overrideMinImpressionsPerVariant: 120,
+      overrideMinAbsoluteLift: 0.2,
+    });
+    expect(thresholdsWithOverride).toEqual({
+      minImpressionsPerVariant: 120,
+      minAbsoluteLift: 0.2,
+    });
+
+    const thresholdsWithInvalidOverride = resolveExperimentThresholds({
+      envMinImpressionsRaw: "45",
+      envMinAbsoluteLiftRaw: "0.35",
+      overrideMinImpressionsPerVariant: -1,
+      overrideMinAbsoluteLift: -0.1,
+    });
+    expect(thresholdsWithInvalidOverride).toEqual({
+      minImpressionsPerVariant: 45,
+      minAbsoluteLift: 0.35,
+    });
   });
 });
