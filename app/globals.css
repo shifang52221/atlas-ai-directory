@@ -1,0 +1,28 @@
+:root {
+  --page-bg: #f4f6fb;
+  --text-main: #151926;
+  --text-soft: #5a6479;
+  --accent: #6153f6;
+  --surface: #ffffff;
+  --line: #e2e7f1;
+  --shadow: rgba(21, 25, 38, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 85% -10%, rgba(111, 128, 255, 0.18), transparent 34%),
+    radial-gradient(circle at -10% 10%, rgba(240, 120, 193, 0.12), transparent 30%),
+    var(--page-bg);
+  color: var(--text-main);
+  font-family: var(--font-body), "Trebuchet MS", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

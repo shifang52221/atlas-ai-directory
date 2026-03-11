@@ -1,0 +1,111 @@
+.footer {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px;
+  background:
+    linear-gradient(145deg, color-mix(in oklab, var(--surface) 90%, white 10%), color-mix(in oklab, var(--surface) 82%, #eaf0ff 18%));
+  box-shadow: 0 20px 42px color-mix(in oklab, var(--shadow) 34%, transparent 66%);
+  overflow: hidden;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.22) 24%, transparent 48%);
+  transform: translateX(-140%);
+  animation: footerSweep 12s ease-in-out infinite;
+}
+
+.top {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.kicker {
+  margin: 0;
+  font-family: var(--font-head), sans-serif;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+.copy {
+  margin: 8px 0 0;
+  max-width: 46ch;
+  color: var(--text-soft);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.linkGroup {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  align-content: start;
+}
+
+.linkGroup a {
+  font-size: 14px;
+  color: var(--text-soft);
+  font-weight: 600;
+  transition: color 200ms ease, transform 200ms ease;
+}
+
+.linkGroup a:hover {
+  color: var(--text-main);
+  transform: translateX(2px);
+}
+
+.bottom {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in oklab, var(--line) 86%, white 14%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bottom p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@keyframes footerSweep {
+  0%,
+  88%,
+  100% {
+    transform: translateX(-140%);
+  }
+  40% {
+    transform: translateX(140%);
+  }
+}
+
+@media (max-width: 920px) {
+  .top {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer::before,
+  .linkGroup a {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

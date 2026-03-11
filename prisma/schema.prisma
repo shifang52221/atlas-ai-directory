@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  AUTHOR
+  VIEWER
+}
+
+enum ToolStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum LinkKind {
+  AFFILIATE
+  SPONSORED
+  DIRECT
+}
+
+enum EventType {
+  AFFILIATE_CLICK
+  OUTBOUND_CLICK
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum WorkflowLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  role        UserRole     @default(VIEWER)
+  submissions Submission[] @relation("SubmissionReviewer")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Category {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  name        String
+  description String?
+  tools       ToolCategory[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Tool {
+  id                String             @id @default(cuid())
+  slug              String             @unique
+  name              String
+  tagline           String?
+  websiteUrl        String
+  description       String?
+  status            ToolStatus         @default(ACTIVE)
+  setupMinutes      Int?
+  pricingFrom       Decimal?           @db.Decimal(10, 2)
+  currency          String             @default("USD")
+  categories        ToolCategory[]
+  affiliatePrograms AffiliateProgram[]
+  affiliateLinks    AffiliateLink[]
+  priceHistory      ToolPrice[]
+  comparisonItems   ComparisonItem[]
+  clickEvents       ClickEvent[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model ToolCategory {
+  toolId     String
+  categoryId String
+  tool       Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([toolId, categoryId])
+  @@index([categoryId])
+}
+
+model AffiliateProgram {
+  id              String          @id @default(cuid())
+  toolId          String
+  tool            Tool            @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  network         String?
+  programName     String
+  commissionModel String?
+  cookieDays      Int?
+  payoutNotes     String?
+  isActive        Boolean         @default(true)
+  links           AffiliateLink[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([toolId])
+}
+
+model AffiliateLink {
+  id             String            @id @default(cuid())
+  toolId         String
+  programId      String?
+  tool           Tool              @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  program        AffiliateProgram? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  linkKind       LinkKind          @default(AFFILIATE)
+  region         String            @default("global")
+  destinationUrl String
+  trackingUrl    String
+  isPrimary      Boolean           @default(false)
+  clickEvents    ClickEvent[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([toolId])
+  @@index([programId])
+}
+
+model ToolPrice {
+  id         String   @id @default(cuid())
+  toolId     String
+  tool       Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  planName   String
+  interval   String
+  amount     Decimal  @db.Decimal(10, 2)
+  currency   String   @default("USD")
+  capturedAt DateTime @default(now())
+
+  @@index([toolId, capturedAt])
+}
+
+model Comparison {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  title       String
+  intro       String?
+  isPublished Boolean          @default(false)
+  publishedAt DateTime?
+  items       ComparisonItem[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model ComparisonItem {
+  id           String     @id @default(cuid())
+  comparisonId String
+  toolId       String
+  rank         Int
+  notes        String?
+  comparison   Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  tool         Tool       @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([comparisonId, toolId])
+  @@index([toolId])
+}
+
+model Workflow {
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  title            String
+  summary          String?
+  difficulty       WorkflowLevel @default(BEGINNER)
+  estimatedMinutes Int?
+  isPublished      Boolean       @default(false)
+  steps            Json
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model ClickEvent {
+  id              String         @id @default(cuid())
+  eventType       EventType
+  pagePath        String
+  toolId          String?
+  affiliateLinkId String?
+  sessionId       String?
+  visitorHash     String?
+  referrer        String?
+  userAgent       String?
+  countryCode     String?
+  metadata        Json?
+  tool            Tool?          @relation(fields: [toolId], references: [id], onDelete: SetNull)
+  affiliateLink   AffiliateLink? @relation(fields: [affiliateLinkId], references: [id], onDelete: SetNull)
+  createdAt       DateTime       @default(now())
+
+  @@index([createdAt])
+  @@index([toolId, createdAt])
+  @@index([affiliateLinkId, createdAt])
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  companyName  String?
+  contactEmail String
+  toolName     String
+  websiteUrl   String
+  message      String?
+  status       SubmissionStatus @default(PENDING)
+  reviewedAt   DateTime?
+  reviewedById String?
+  reviewedBy   User?            @relation("SubmissionReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([status, createdAt])
+}
