@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+process.env.OUTBOUND_SIGNING_SECRET =
+  process.env.OUTBOUND_SIGNING_SECRET || "playwright-signing-secret";
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,

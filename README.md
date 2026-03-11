@@ -57,6 +57,7 @@ npm run lint
 npm test
 npm run test:e2e
 npm run build
+npm run audit:affiliate
 ```
 
 ## Launch Status
@@ -133,6 +134,7 @@ npm run lint
 npm run build
 npm test
 npm run test:e2e
+npm run audit:affiliate
 ```
 
 Rate-limit audit entries are appended to `dev.log` with:

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildEditorialHubExperimentView,
+  getEditorialHubPaths,
   getEditorialHubConfigOrThrow,
   parseEditorialHubVariant,
 } from "../../lib/editorial-hubs";
@@ -29,5 +30,26 @@ describe("editorial hub experiments", () => {
       "n8n",
     ]);
   });
-});
 
+  it("keeps concrete evidence and cross-hub links on every launch hub", () => {
+    const paths = getEditorialHubPaths();
+
+    for (const path of paths) {
+      const config = getEditorialHubConfigOrThrow(path);
+      const otherHubPaths = paths.filter((item) => item !== path);
+
+      expect(config.recommendations.length).toBeGreaterThanOrEqual(5);
+      for (const recommendation of config.recommendations) {
+        expect(recommendation.evidence).toBeTruthy();
+        expect(recommendation.evidence.length).toBeGreaterThan(24);
+      }
+
+      expect(
+        config.continueLinks.some((link) => otherHubPaths.includes(link.href)),
+      ).toBe(true);
+      expect(
+        config.continueLinks.some((link) => link.href === "/affiliate-disclosure"),
+      ).toBe(true);
+    }
+  });
+});

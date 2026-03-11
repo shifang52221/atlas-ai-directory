@@ -15,6 +15,25 @@ type HomepageClientProps = {
 };
 
 export default function HomepageClient({ data }: HomepageClientProps) {
+  const hubGuides = [
+    {
+      label: "Best AI Automation Tools for Ops Teams",
+      href: "/best-ai-automation-tools",
+    },
+    {
+      label: "Best AI Agents for Sales Teams",
+      href: "/best-ai-agents-for-sales",
+    },
+    {
+      label: "Best AI Tools for Customer Support",
+      href: "/best-ai-tools-for-support",
+    },
+    {
+      label: "Best AI Tools for Marketing Teams",
+      href: "/best-ai-tools-for-marketing",
+    },
+  ];
+
   const reveal = (delay: string): CSSProperties =>
     ({ "--reveal-delay": delay }) as CSSProperties;
   const formatDate = (value: string) =>
@@ -90,6 +109,25 @@ export default function HomepageClient({ data }: HomepageClientProps) {
             <Link className={styles.megaNavItem} href="/workflows">
               Workflow templates
             </Link>
+          </div>
+        </section>
+
+        <section
+          className={`${styles.section} ${styles.reveal}`}
+          style={reveal("20ms")}
+          data-motion="section-reveal"
+          aria-labelledby="buying-guides-title"
+        >
+          <div className={styles.sectionHead}>
+            <h2 id="buying-guides-title">Best AI buying guides</h2>
+            <Link href="/affiliate-disclosure">Disclosure standard</Link>
+          </div>
+          <div className={styles.hubGuideGrid}>
+            {hubGuides.map((hub) => (
+              <Link key={hub.href} className={styles.hubGuideCard} href={hub.href}>
+                {hub.label}
+              </Link>
+            ))}
           </div>
         </section>
 

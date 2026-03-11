@@ -1,7 +1,9 @@
 import { EventType, LinkKind } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { withAffiliateTracking } from "@/lib/monetization-config";
 import { isValidOutboundSignature } from "@/lib/outbound-signature";
+import { getFallbackToolProfiles } from "@/lib/tool-profile-data";
 
 function toLinkKind(value: string | null): LinkKind {
   if (value === LinkKind.AFFILIATE) {
@@ -37,6 +39,96 @@ function getSafeRedirectTarget(value: string | null): URL | null {
   } catch {
     return null;
   }
+}
+
+function toNormalizedHttpUrl(value: string): string | null {
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return null;
+    }
+
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+function addAllowlistedTargetVariants(
+  targetSet: Set<string>,
+  targetUrl: string | null | undefined,
+) {
+  if (!targetUrl) {
+    return;
+  }
+
+  const rawNormalized = toNormalizedHttpUrl(targetUrl);
+  if (rawNormalized) {
+    targetSet.add(rawNormalized);
+  }
+
+  const trackedNormalized = toNormalizedHttpUrl(withAffiliateTracking(targetUrl));
+  if (trackedNormalized) {
+    targetSet.add(trackedNormalized);
+  }
+}
+
+async function isAllowlistedOutboundTarget(input: {
+  toolSlug: string;
+  targetUrl: string;
+  affiliateLinkId?: string;
+}): Promise<boolean> {
+  const toolSlug = input.toolSlug.trim();
+  const normalizedTarget = toNormalizedHttpUrl(input.targetUrl);
+  if (!toolSlug || !normalizedTarget) {
+    return false;
+  }
+
+  const allowlistedTargets = new Set<string>();
+
+  try {
+    const db = getDb();
+    const tool = await db.tool.findUnique({
+      where: { slug: toolSlug },
+      select: {
+        websiteUrl: true,
+        affiliateLinks: {
+          orderBy: { updatedAt: "desc" },
+          take: 50,
+          select: {
+            id: true,
+            trackingUrl: true,
+            destinationUrl: true,
+          },
+        },
+      },
+    });
+
+    if (tool) {
+      addAllowlistedTargetVariants(allowlistedTargets, tool.websiteUrl);
+
+      const links = input.affiliateLinkId
+        ? tool.affiliateLinks.filter((link) => link.id === input.affiliateLinkId)
+        : tool.affiliateLinks;
+
+      for (const link of links) {
+        addAllowlistedTargetVariants(allowlistedTargets, link.trackingUrl);
+        addAllowlistedTargetVariants(allowlistedTargets, link.destinationUrl);
+      }
+    }
+  } catch {
+    // Continue with fallback allowlist only.
+  }
+
+  const fallbackProfile = getFallbackToolProfiles().find(
+    (tool) => tool.slug === toolSlug,
+  );
+  if (fallbackProfile && !input.affiliateLinkId) {
+    addAllowlistedTargetVariants(allowlistedTargets, fallbackProfile.websiteUrl);
+  }
+
+  return allowlistedTargets.has(normalizedTarget);
 }
 
 function toSafeVariant(value: string | null): "A" | "B" | undefined {
@@ -83,6 +175,15 @@ export async function GET(request: NextRequest) {
   );
 
   if (!target) {
+    return NextResponse.redirect(new URL("/tools", request.url), 302);
+  }
+
+  const targetAllowlisted = await isAllowlistedOutboundTarget({
+    toolSlug,
+    targetUrl: target.toString(),
+    affiliateLinkId,
+  });
+  if (!targetAllowlisted) {
     return NextResponse.redirect(new URL("/tools", request.url), 302);
   }
 

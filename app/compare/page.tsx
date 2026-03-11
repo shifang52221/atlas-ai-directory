@@ -5,6 +5,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
 
   return {
+    title: "Compare AI Tools | Atlas AI Directory",
+    description:
+      "Decision-focused AI tool comparisons using setup speed, quality, flexibility, and total cost criteria.",
     alternates: {
       canonical: new URL("/compare", baseUrl).toString(),
     },
@@ -75,6 +78,8 @@ export default function ComparePage() {
         sectionTitle="Comparison methodology"
         sectionBody="Each tool is evaluated across practical implementation factors using public pricing, integration docs, and operator-oriented workflows. Sponsored status is always disclosed."
         sectionLinks={[
+          { label: "Best AI Automation Tools", href: "/best-ai-automation-tools" },
+          { label: "Best AI Tools for Marketing", href: "/best-ai-tools-for-marketing" },
           { label: "Editorial Policy", href: "/editorial-policy" },
           { label: "Affiliate Disclosure", href: "/affiliate-disclosure" },
         ]}

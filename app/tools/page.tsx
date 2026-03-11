@@ -6,6 +6,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
 
   return {
+    title: "AI Tools Directory | Atlas AI Directory",
+    description:
+      "Curated AI tools with filters and profile-first navigation for quick shortlisting.",
     alternates: {
       canonical: new URL("/tools", baseUrl).toString(),
     },

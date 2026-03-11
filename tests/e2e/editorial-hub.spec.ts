@@ -34,6 +34,9 @@ for (const hub of hubs) {
     await expect(
       page.getByRole("heading", { level: 2, name: "Top picks" }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Evidence and review basis" }),
+    ).toBeVisible();
     await expect(page.getByRole("table")).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "FAQ" })).toBeVisible();
 
@@ -53,6 +56,13 @@ for (const hub of hubs) {
     expect(schemaJson).toContain('"@type":"CollectionPage"');
     expect(schemaJson).toContain('"@type":"ItemList"');
     expect(schemaJson).toContain('"@type":"FAQPage"');
+
+    const otherHubs = hubs
+      .map((item) => item.path)
+      .filter((pathItem) => pathItem !== hub.path);
+    for (const targetPath of otherHubs) {
+      await expect(page.locator(`a[href="${targetPath}"]`).first()).toBeVisible();
+    }
   });
 
   test(`editorial hub variant B keeps canonical and marks outbound variant: ${hub.path}`, async ({

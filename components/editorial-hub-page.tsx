@@ -119,6 +119,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
                 <h3>{tool.name}</h3>
                 <p className={styles.tagline}>{tool.tagline}</p>
                 <p className={styles.summary}>{tool.description}</p>
+                <p className={styles.evidence}>{tool.evidence}</p>
                 <div className={styles.badges}>
                   {tool.categories.map((category) => (
                     <span key={`${tool.slug}-${category}`}>{category}</span>
@@ -137,6 +138,24 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
               </article>
             ))}
           </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2>Evidence and review basis</h2>
+          <ul className={styles.evidenceList}>
+            {rankedTools.map((tool) => (
+              <li key={`evidence-${tool.slug}`} className={styles.evidenceItem}>
+                <p>
+                  <strong>{tool.name}</strong>
+                </p>
+                <p>{tool.evidence}</p>
+              </li>
+            ))}
+          </ul>
+          <p className={styles.disclosure}>
+            Evidence notes summarize public documentation review and operator-fit scoring. Monetary
+            relationships are disclosed separately and never override ranking logic.
+          </p>
         </section>
 
         <section className={styles.section}>

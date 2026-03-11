@@ -5,6 +5,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
 
   return {
+    title: "AI Use Cases | Atlas AI Directory",
+    description:
+      "Intent-first navigation to discover AI tools by outcomes and deployment scenarios.",
     alternates: {
       canonical: new URL("/use-cases", baseUrl).toString(),
     },
@@ -75,6 +78,8 @@ export default function UseCasesPage() {
         sectionTitle="How to use this page"
         sectionBody="Start from your team goal, shortlist 2 to 3 tools, then compare setup time, budget fit, and integration depth before selecting a final stack."
         sectionLinks={[
+          { label: "Best AI Automation Tools", href: "/best-ai-automation-tools" },
+          { label: "Best AI Agents for Sales", href: "/best-ai-agents-for-sales" },
           { label: "Editorial Policy", href: "/editorial-policy" },
           { label: "Affiliate Disclosure", href: "/affiliate-disclosure" },
         ]}

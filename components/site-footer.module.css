@@ -26,7 +26,7 @@
   z-index: 1;
   display: grid;
   gap: 14px;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 1fr));
 }
 
 .kicker {
@@ -50,6 +50,15 @@
   gap: 8px;
   justify-items: start;
   align-content: start;
+}
+
+.groupTitle {
+  margin: 0 0 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+  font-weight: 700;
 }
 
 .linkGroup a {

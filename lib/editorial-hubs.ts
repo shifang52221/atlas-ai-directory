@@ -6,6 +6,7 @@ type HubRecommendation = {
   score: number;
   bestFor: string;
   tradeoff: string;
+  evidence: string;
 };
 
 type HubFaqItem = {
@@ -53,6 +54,7 @@ export type EditorialHubRankedTool = {
   score: number;
   bestFor: string;
   tradeoff: string;
+  evidence: string;
   outboundHref: string;
 };
 
@@ -81,30 +83,40 @@ const editorialHubs: EditorialHubConfig[] = [
         score: 9.4,
         bestFor: "Fast cross-app launch with low ops overhead",
         tradeoff: "Advanced logic depth is more limited than n8n or Make",
+        evidence:
+          "Evidence basis: integration catalog depth, onboarding docs, and workflow template coverage reviewed in March 2026.",
       },
       {
         slug: "make",
         score: 9.2,
         bestFor: "Visual multi-step orchestration and branching control",
         tradeoff: "Scenario design can be heavy for simple one-step automations",
+        evidence:
+          "Evidence basis: branching editor capability, error-handler controls, and scenario monitoring visibility in current vendor docs.",
       },
       {
         slug: "n8n",
         score: 9.0,
         bestFor: "Technical teams requiring open-source flexibility",
         tradeoff: "Self-hosting and maintenance need stronger technical ownership",
+        evidence:
+          "Evidence basis: self-hosting options, node extensibility, and infrastructure ownership requirements from setup documentation.",
       },
       {
         slug: "relevance-ai",
         score: 8.8,
         bestFor: "Role-based AI workforce deployment at team level",
         tradeoff: "Agent orchestration setup can be overkill for small teams",
+        evidence:
+          "Evidence basis: role-based agent templates, orchestration workflow surface, and operational governance controls documented publicly.",
       },
       {
         slug: "lindy",
         score: 8.7,
         bestFor: "SMB operators automating inbox and support handoffs",
         tradeoff: "Complex multi-system logic can require supplemental tooling",
+        evidence:
+          "Evidence basis: prebuilt assistant flows, inbox handoff coverage, and setup effort signals from user onboarding materials.",
       },
     ],
     faqItems: [
@@ -133,6 +145,10 @@ const editorialHubs: EditorialHubConfig[] = [
       { label: "Compare tools side by side", href: "/compare" },
       { label: "Browse use-case clusters", href: "/use-cases" },
       { label: "Review workflow templates", href: "/workflows" },
+      { label: "Best AI Agents for Sales Teams", href: "/best-ai-agents-for-sales" },
+      { label: "Best AI Tools for Customer Support", href: "/best-ai-tools-for-support" },
+      { label: "Best AI Tools for Marketing Teams", href: "/best-ai-tools-for-marketing" },
+      { label: "Affiliate disclosure rules", href: "/affiliate-disclosure" },
     ],
     experiment: {
       variantB: {
@@ -159,30 +175,40 @@ const editorialHubs: EditorialHubConfig[] = [
         score: 9.35,
         bestFor: "Signal-based enrichment and outbound execution",
         tradeoff: "Credit-based pricing can scale quickly with high volume",
+        evidence:
+          "Evidence basis: enrichment source coverage, list-building workflow controls, and outbound sequencing features reviewed this quarter.",
       },
       {
         slug: "relevance-ai",
         score: 9.18,
         bestFor: "Role-based multi-agent workflows for SDR and RevOps",
         tradeoff: "Initial orchestration setup is heavier than template-first tools",
+        evidence:
+          "Evidence basis: multi-agent orchestration templates, handoff checkpoints, and team-role workflow support in current product docs.",
       },
       {
         slug: "zapier-ai",
         score: 8.98,
         bestFor: "Fast lead-routing automations across CRM and support tools",
         tradeoff: "Less flexible than engineering-centric automation stacks",
+        evidence:
+          "Evidence basis: CRM integration surface, trigger-action reliability, and low-friction setup path for sales operations teams.",
       },
       {
         slug: "make",
         score: 8.9,
         bestFor: "Visual pipeline automations and attribution branching",
         tradeoff: "Complex scenarios can become hard to maintain without guardrails",
+        evidence:
+          "Evidence basis: visual branching depth, routing logic controls, and attribution workflow support validated in template library.",
       },
       {
         slug: "lindy",
         score: 8.72,
         bestFor: "SMB sales teams automating email follow-up loops",
         tradeoff: "Advanced enrichment depth is narrower than dedicated GTM tools",
+        evidence:
+          "Evidence basis: inbox-focused automation templates and follow-up assistant workflows aligned to SMB sales operations usage.",
       },
     ],
     faqItems: [
@@ -211,6 +237,10 @@ const editorialHubs: EditorialHubConfig[] = [
       { label: "See AI sales use cases", href: "/use-cases/ai-sales" },
       { label: "Compare shortlisted tools", href: "/compare" },
       { label: "Browse all tools", href: "/tools" },
+      { label: "Best AI Automation Tools for Ops Teams", href: "/best-ai-automation-tools" },
+      { label: "Best AI Tools for Customer Support", href: "/best-ai-tools-for-support" },
+      { label: "Best AI Tools for Marketing Teams", href: "/best-ai-tools-for-marketing" },
+      { label: "Affiliate disclosure rules", href: "/affiliate-disclosure" },
     ],
     experiment: {
       variantB: {
@@ -237,30 +267,40 @@ const editorialHubs: EditorialHubConfig[] = [
         score: 9.32,
         bestFor: "Inbox automation and practical SMB support handoffs",
         tradeoff: "Deep custom workflow logic may require pairing with automation builders",
+        evidence:
+          "Evidence basis: support inbox automation patterns, escalation handoff coverage, and setup path for small support teams.",
       },
       {
         slug: "zapier-ai",
         score: 9.1,
         bestFor: "Ticket routing and multi-app support automations",
         tradeoff: "Advanced conditional workflow depth is less technical than n8n",
+        evidence:
+          "Evidence basis: ticket-routing integrations, trigger reliability, and cross-app support workflow templates in public docs.",
       },
       {
         slug: "relevance-ai",
         score: 8.96,
         bestFor: "Multi-agent support orchestration for larger teams",
         tradeoff: "Setup can feel heavier for small support organizations",
+        evidence:
+          "Evidence basis: multi-agent response orchestration, team handoff controls, and deployment workflow complexity assessment.",
       },
       {
         slug: "n8n",
         score: 8.84,
         bestFor: "Self-hosted support workflows requiring strict control",
         tradeoff: "Infrastructure ownership increases ongoing maintenance",
+        evidence:
+          "Evidence basis: self-hosted deployment options, custom node flexibility, and reliability ownership requirements for support ops.",
       },
       {
         slug: "make",
         score: 8.72,
         bestFor: "Visual escalation and routing logic for support operations",
         tradeoff: "Scenario complexity can grow quickly without governance",
+        evidence:
+          "Evidence basis: escalation logic expressiveness, branch-level debugging tools, and support workflow observability capabilities.",
       },
     ],
     faqItems: [
@@ -289,6 +329,10 @@ const editorialHubs: EditorialHubConfig[] = [
       { label: "See support automation use cases", href: "/use-cases/support-automation" },
       { label: "Read workflow templates", href: "/workflows" },
       { label: "Compare alternatives", href: "/compare" },
+      { label: "Best AI Automation Tools for Ops Teams", href: "/best-ai-automation-tools" },
+      { label: "Best AI Agents for Sales Teams", href: "/best-ai-agents-for-sales" },
+      { label: "Best AI Tools for Marketing Teams", href: "/best-ai-tools-for-marketing" },
+      { label: "Affiliate disclosure rules", href: "/affiliate-disclosure" },
     ],
     experiment: {
       variantB: {
@@ -315,30 +359,40 @@ const editorialHubs: EditorialHubConfig[] = [
         score: 9.28,
         bestFor: "Visual campaign orchestration and attribution routing",
         tradeoff: "Complex scenario governance is required at scale",
+        evidence:
+          "Evidence basis: campaign automation templates, attribution workflow depth, and branch governance controls checked this month.",
       },
       {
         slug: "clay",
         score: 9.12,
         bestFor: "Enrichment-led growth workflows and outbound personalization",
         tradeoff: "Credit consumption should be monitored weekly to control costs",
+        evidence:
+          "Evidence basis: enrichment coverage breadth, personalization workflow support, and credit-consumption monitoring needs.",
       },
       {
         slug: "zapier-ai",
         score: 8.98,
         bestFor: "Fast launch for marketing automations across common SaaS tools",
         tradeoff: "Less customizable than technical automation frameworks",
+        evidence:
+          "Evidence basis: broad app connectors, low-friction campaign automation setup, and operator adoption speed indicators.",
       },
       {
         slug: "n8n",
         score: 8.76,
         bestFor: "Custom, cost-conscious marketing pipelines with full control",
         tradeoff: "Technical ownership requirements are higher than managed platforms",
+        evidence:
+          "Evidence basis: custom workflow extensibility, self-hosting cost leverage, and ongoing technical maintenance burden.",
       },
       {
         slug: "relevance-ai",
         score: 8.68,
         bestFor: "AI workforce workflows across campaign and ops functions",
         tradeoff: "Agent orchestration setup may exceed needs for small teams",
+        evidence:
+          "Evidence basis: workforce-style agent workflows, cross-functional campaign handoffs, and orchestration setup complexity.",
       },
     ],
     faqItems: [
@@ -367,6 +421,10 @@ const editorialHubs: EditorialHubConfig[] = [
       { label: "See content workflow use cases", href: "/use-cases/content-workflows" },
       { label: "Explore all tool profiles", href: "/tools" },
       { label: "Compare before purchase", href: "/compare" },
+      { label: "Best AI Automation Tools for Ops Teams", href: "/best-ai-automation-tools" },
+      { label: "Best AI Agents for Sales Teams", href: "/best-ai-agents-for-sales" },
+      { label: "Best AI Tools for Customer Support", href: "/best-ai-tools-for-support" },
+      { label: "Affiliate disclosure rules", href: "/affiliate-disclosure" },
     ],
     experiment: {
       variantB: {
@@ -458,6 +516,7 @@ export function buildEditorialHubRankedTools(
         score: recommendation.score,
         bestFor: recommendation.bestFor,
         tradeoff: recommendation.tradeoff,
+        evidence: recommendation.evidence,
         outboundHref: buildOutboundHref({
           toolSlug: tool.slug,
           targetUrl: tool.websiteUrl,

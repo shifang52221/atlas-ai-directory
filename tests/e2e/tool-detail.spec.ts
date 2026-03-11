@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import { LinkKind } from "@prisma/client";
+import { buildOutboundSignature } from "../../lib/outbound-signature";
 
 test("tool detail page renders profile and monetization slots", async ({
   page,
@@ -88,6 +90,35 @@ test("outbound endpoint blocks tampered target params", async ({
       maxRedirects: 0,
     },
   );
+
+  expect(response.status()).toBe(302);
+  expect(response.headers().location).toContain("/tools");
+});
+
+test("outbound endpoint blocks signed but non-allowlisted target params", async ({
+  request,
+}) => {
+  const target = "https://example.com/phishing";
+  const input = {
+    toolSlug: "zapier-ai",
+    target,
+    linkKind: LinkKind.DIRECT,
+    sourcePath: "/tools/zapier-ai",
+  };
+  const signature = buildOutboundSignature(input);
+  expect(signature).toBeTruthy();
+
+  const params = new URLSearchParams({
+    toolSlug: input.toolSlug,
+    target: input.target,
+    linkKind: input.linkKind,
+    sourcePath: input.sourcePath,
+    sig: signature!,
+  });
+
+  const response = await request.get(`/api/outbound?${params.toString()}`, {
+    maxRedirects: 0,
+  });
 
   expect(response.status()).toBe(302);
   expect(response.headers().location).toContain("/tools");

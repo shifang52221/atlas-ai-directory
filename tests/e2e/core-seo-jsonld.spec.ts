@@ -31,7 +31,12 @@ test("tools listing page includes canonical and CollectionPage schema", async ({
 }) => {
   await page.goto("/tools");
 
+  await expect(page).toHaveTitle(/AI Tools Directory/i);
   await expect(page.getByRole("heading", { level: 1, name: "Tools" })).toBeVisible();
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /curated ai tools/i,
+  );
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     /http:\/\/localhost:3000\/tools\/?$/,
@@ -52,9 +57,14 @@ test("use-cases listing page includes canonical and CollectionPage schema", asyn
 }) => {
   await page.goto("/use-cases");
 
+  await expect(page).toHaveTitle(/AI Use Cases/i);
   await expect(
     page.getByRole("heading", { level: 1, name: "Use Cases" }),
   ).toBeVisible();
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /discover ai tools by outcomes/i,
+  );
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     /http:\/\/localhost:3000\/use-cases\/?$/,
@@ -75,9 +85,14 @@ test("compare page includes canonical and CollectionPage schema", async ({
 }) => {
   await page.goto("/compare");
 
+  await expect(page).toHaveTitle(/Compare AI Tools/i);
   await expect(
     page.getByRole("heading", { level: 1, name: "Compare Tools" }),
   ).toBeVisible();
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /decision-focused ai tool comparisons/i,
+  );
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     /http:\/\/localhost:3000\/compare\/?$/,
@@ -98,9 +113,14 @@ test("workflows page includes canonical and CollectionPage schema", async ({
 }) => {
   await page.goto("/workflows");
 
+  await expect(page).toHaveTitle(/AI Workflow Templates/i);
   await expect(
     page.getByRole("heading", { level: 1, name: "Workflows" }),
   ).toBeVisible();
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /execution-ready ai workflow playbooks/i,
+  );
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     /http:\/\/localhost:3000\/workflows\/?$/,

@@ -485,6 +485,31 @@
   font-weight: 700;
 }
 
+.hubGuideGrid {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hubGuideCard {
+  border: 1px solid color-mix(in oklab, var(--line) 84%, white 16%);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-main);
+  background: color-mix(in oklab, white 88%, var(--surface) 12%);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.hubGuideCard:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--accent) 36%, var(--line) 64%);
+  box-shadow: 0 12px 24px color-mix(in oklab, var(--shadow) 28%, transparent 72%);
+}
+
 .controlsRow {
   margin-top: 12px;
   display: flex;
@@ -920,6 +945,10 @@
 
   .cardGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hubGuideGrid {
+    grid-template-columns: 1fr;
   }
 
   .categoryGrid {

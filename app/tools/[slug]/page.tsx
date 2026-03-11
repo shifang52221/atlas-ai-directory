@@ -82,6 +82,24 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
       slug: alternativeSlug,
       name: fallbackToolMap.get(alternativeSlug)?.name || toDisplayNameFromSlug(alternativeSlug),
     }));
+  const editorialHubLinks = [
+    {
+      label: "Best AI Automation Tools for Ops Teams",
+      href: "/best-ai-automation-tools",
+    },
+    {
+      label: "Best AI Agents for Sales Teams",
+      href: "/best-ai-agents-for-sales",
+    },
+    {
+      label: "Best AI Tools for Customer Support",
+      href: "/best-ai-tools-for-support",
+    },
+    {
+      label: "Best AI Tools for Marketing Teams",
+      href: "/best-ai-tools-for-marketing",
+    },
+  ];
   const toolJsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -294,6 +312,17 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
                 </Link>
               </li>
               {useCaseLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href}>{item.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          <article className={styles.card}>
+            <h2>Best-of Buying Guides</h2>
+            <ul className={styles.linkList}>
+              {editorialHubLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href}>{item.label}</Link>
                 </li>

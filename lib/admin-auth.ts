@@ -26,6 +26,13 @@ type AdminSessionPayload = AdminIdentity & {
   nonce: string;
 };
 
+type AdminAuthSecurityInput = {
+  nodeEnv?: string;
+  loginEmail?: string;
+  password?: string;
+  sessionSecret?: string;
+};
+
 declare global {
   var atlasAdminSessionSecret: string | undefined;
   var atlasAdminLoginGuards: Map<string, LoginGuard> | undefined;
@@ -80,6 +87,52 @@ function getAdminSessionSecret(): string {
   }
 
   return global.atlasAdminSessionSecret;
+}
+
+function isPlaceholderValue(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return true;
+  }
+
+  return (
+    normalized.includes("replace-with") ||
+    normalized.includes("changeme") ||
+    normalized === "atlas-admin" ||
+    normalized === "password" ||
+    normalized === "admin"
+  );
+}
+
+export function isAdminAuthConfigSecureForProduction(
+  input?: AdminAuthSecurityInput,
+): boolean {
+  const nodeEnv = input?.nodeEnv ?? process.env.NODE_ENV;
+  if (nodeEnv !== "production") {
+    return true;
+  }
+
+  const loginEmail = normalizeEmail(
+    (input?.loginEmail ?? process.env.ADMIN_LOGIN_EMAIL) || "",
+  );
+  const password = (
+    (input?.password ?? process.env.ADMIN_DASHBOARD_PASSWORD) || ""
+  ).trim();
+  const sessionSecret = (
+    (input?.sessionSecret ?? process.env.ADMIN_SESSION_SECRET) || ""
+  ).trim();
+
+  if (!loginEmail || !loginEmail.includes("@")) {
+    return false;
+  }
+  if (password.length < 20 || isPlaceholderValue(password)) {
+    return false;
+  }
+  if (sessionSecret.length < 32 || isPlaceholderValue(sessionSecret)) {
+    return false;
+  }
+
+  return true;
 }
 
 function signAdminSession(payload: string, secret: string): string {
@@ -296,6 +349,16 @@ export async function loginAdmin(email: string, password: string): Promise<boole
       success: false,
       email: "unknown",
       reason: "missing_email",
+    });
+    return false;
+  }
+
+  if (!isAdminAuthConfigSecureForProduction()) {
+    await auditAdminAuthEvent({
+      event: "login",
+      success: false,
+      email: normalizedEmail,
+      reason: "insecure_production_config",
     });
     return false;
   }

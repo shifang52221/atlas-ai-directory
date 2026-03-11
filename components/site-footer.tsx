@@ -15,6 +15,13 @@ const utilityLinks = [
   { label: "Contact", href: "/submit" },
 ];
 
+const hubLinks = [
+  { label: "Best AI Automation Tools for Ops Teams", href: "/best-ai-automation-tools" },
+  { label: "Best AI Agents for Sales Teams", href: "/best-ai-agents-for-sales" },
+  { label: "Best AI Tools for Customer Support", href: "/best-ai-tools-for-support" },
+  { label: "Best AI Tools for Marketing Teams", href: "/best-ai-tools-for-marketing" },
+];
+
 export function SiteFooter() {
   return (
     <footer className={styles.footer} data-ui="site-footer">
@@ -28,6 +35,7 @@ export function SiteFooter() {
         </div>
 
         <div className={styles.linkGroup}>
+          <p className={styles.groupTitle}>Directory</p>
           {primaryLinks.map((item) => (
             <Link key={item.label} href={item.href}>
               {item.label}
@@ -36,7 +44,17 @@ export function SiteFooter() {
         </div>
 
         <div className={styles.linkGroup}>
+          <p className={styles.groupTitle}>Trust + Submit</p>
           {utilityLinks.map((item) => (
+            <Link key={item.label} href={item.href}>
+              {item.label}
+            </Link>
+          ))}
+        </div>
+
+        <div className={styles.linkGroup}>
+          <p className={styles.groupTitle}>Best-of Hubs</p>
+          {hubLinks.map((item) => (
             <Link key={item.label} href={item.href}>
               {item.label}
             </Link>

@@ -184,6 +184,13 @@
   font-size: 14px;
 }
 
+.evidence {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--text-soft) 84%, #25324d 16%);
+}
+
 .badges {
   display: flex;
   flex-wrap: wrap;
@@ -237,6 +244,35 @@
   overflow-x: auto;
   border: 1px solid color-mix(in oklab, var(--line) 86%, white 14%);
   border-radius: 12px;
+}
+
+.evidenceList {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.evidenceItem {
+  border: 1px solid color-mix(in oklab, var(--line) 84%, white 16%);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: color-mix(in oklab, white 90%, var(--surface) 10%);
+  display: grid;
+  gap: 6px;
+}
+
+.evidenceItem p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.evidenceItem strong {
+  color: var(--text-main);
 }
 
 .tableWrap table {
@@ -363,6 +399,10 @@
 
   .topPicksGrid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .evidenceList {
+    grid-template-columns: 1fr;
   }
 }
 
