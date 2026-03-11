@@ -1,5 +1,9 @@
 import { EventType, LinkKind } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  buildPrivacySafeAnalyticsContext,
+  sanitizePlacementId,
+} from "@/lib/analytics-context";
 import { getDb } from "@/lib/db";
 import { withAffiliateTracking } from "@/lib/monetization-config";
 import { isValidOutboundSignature } from "@/lib/outbound-signature";
@@ -149,6 +153,10 @@ export async function GET(request: NextRequest) {
   const linkKind = toLinkKind(request.nextUrl.searchParams.get("linkKind"));
   const sourcePath =
     request.nextUrl.searchParams.get("sourcePath") || "/tools";
+  const placementId = sanitizePlacementId(
+    request.nextUrl.searchParams.get("placementId") ||
+      request.nextUrl.searchParams.get("placement"),
+  );
   const targetParam = request.nextUrl.searchParams.get("target") || "";
   const signature = request.nextUrl.searchParams.get("sig");
   const affiliateLinkId =
@@ -163,6 +171,7 @@ export async function GET(request: NextRequest) {
         linkKind,
         sourcePath,
         affiliateLinkId,
+        placementId,
       },
       signature,
     )
@@ -189,6 +198,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const db = getDb();
+    const analyticsContext = buildPrivacySafeAnalyticsContext({
+      headers: request.headers,
+    });
     const tool = toolSlug
       ? await db.tool.findUnique({
           where: { slug: toolSlug },
@@ -202,13 +214,23 @@ export async function GET(request: NextRequest) {
         pagePath: sourcePath,
         toolId: tool?.id,
         affiliateLinkId,
+        sessionId: analyticsContext.sessionId,
+        visitorHash: analyticsContext.visitorHash,
+        countryCode: analyticsContext.countryCode,
         referrer: request.headers.get("referer") || undefined,
         userAgent: request.headers.get("user-agent") || undefined,
         metadata: {
+          schemaVersion: 1,
+          kind: "OUTBOUND_REDIRECT",
+          pagePath: sourcePath,
+          sourcePath,
           targetUrl: target.toString(),
           toolSlug,
           linkKind,
           variant,
+          placementId,
+          sessionHash: analyticsContext.visitorHash,
+          countryCode: analyticsContext.countryCode,
         },
       },
     });

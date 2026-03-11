@@ -118,6 +118,14 @@ test("admin route requires login and allows access with valid password", async (
   await expect(
     page.getByRole("heading", { level: 3, name: "Recommended Actions (7d)" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Export Experiment CSV" }),
+  ).toBeVisible();
+  const experimentExportResponse = await page.request.get(
+    "/api/admin/affiliate/experiments/export?window=7d",
+  );
+  expect(experimentExportResponse.status()).toBe(200);
+  expect(experimentExportResponse.headers()["content-type"]).toContain("text/csv");
   await expect(page.getByRole("link", { name: "All hubs" })).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 2, name: "Manual Backfill History" }),
@@ -149,6 +157,11 @@ test("admin login page shows rate-limit notice", async ({ page }) => {
 test("admin export api rejects unauthenticated requests", async ({ request }) => {
   const response = await request.get("/api/admin/rate-limit/export");
   expect(response.status()).toBe(401);
+
+  const experimentResponse = await request.get(
+    "/api/admin/affiliate/experiments/export",
+  );
+  expect(experimentResponse.status()).toBe(401);
 });
 
 test("affiliate hub action status persists after save and reload", async ({ page }) => {

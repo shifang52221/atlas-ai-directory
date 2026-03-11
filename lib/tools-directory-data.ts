@@ -60,6 +60,7 @@ const fallbackTools: DirectoryTool[] = fallbackToolOrder
         targetUrl: tool.websiteUrl,
         linkKind: LinkKind.DIRECT,
         sourcePath: "/tools",
+        placementId: "tools_directory_list",
       }),
       filters: tool.categories,
       popularity: 100 - index * 4,
@@ -155,6 +156,7 @@ export async function getToolsDirectoryData(): Promise<ToolsDirectoryData> {
           linkKind,
           sourcePath: "/tools",
           affiliateLinkId: primaryLink?.id,
+          placementId: "tools_directory_list",
         }),
         filters: filters.length > 0 ? filters : ["Automation"],
         popularity:

@@ -5,11 +5,13 @@ import { useEffect } from "react";
 type HubImpressionTrackerProps = {
   pagePath: string;
   variant?: "A" | "B";
+  placementId?: string;
 };
 
 export function HubImpressionTracker({
   pagePath,
   variant = "A",
+  placementId = "hub_hero",
 }: HubImpressionTrackerProps) {
   useEffect(() => {
     const key = `atlas_hub_impression:${pagePath}:${variant}`;
@@ -27,19 +29,20 @@ export function HubImpressionTracker({
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ pagePath, variant }),
+      body: JSON.stringify({ pagePath, variant, placementId }),
       keepalive: true,
       cache: "no-store",
     }).catch(() => {
       // Non-blocking analytics write.
     });
-  }, [pagePath, variant]);
+  }, [pagePath, placementId, variant]);
 
   return (
     <span
       data-ui="hub-impression-tracker"
       data-page-path={pagePath}
       data-variant={variant}
+      data-placement-id={placementId}
       hidden
     />
   );

@@ -14,12 +14,14 @@ describe("tool profile data", () => {
       linkKind: LinkKind.AFFILIATE,
       sourcePath: "/tools/zapier-ai",
       affiliateLinkId: "link_1",
+      placementId: "tool_profile_primary",
     });
 
     expect(href).toContain("/api/outbound?");
     expect(href).toContain("toolSlug=zapier-ai");
     expect(href).toContain("linkKind=AFFILIATE");
     expect(href).toContain("affiliateLinkId=link_1");
+    expect(href).toContain("placementId=tool_profile_primary");
   });
 
   it("includes fallback profiles with generated outbound links", () => {
@@ -43,6 +45,7 @@ describe("tool profile data", () => {
       const target = outbound.searchParams.get("target");
       const sourcePath = outbound.searchParams.get("sourcePath");
       const linkKind = outbound.searchParams.get("linkKind");
+      const placementId = outbound.searchParams.get("placementId");
       const signature = outbound.searchParams.get("sig");
 
       expect(toolSlug).toBe(profile.slug);
@@ -57,6 +60,7 @@ describe("tool profile data", () => {
           target: target || "",
           linkKind: LinkKind.DIRECT,
           sourcePath: sourcePath || "",
+          placementId: placementId || undefined,
         },
         signature,
       );

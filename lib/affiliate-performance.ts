@@ -82,6 +82,22 @@ export type AffiliateHubTrendPoint = {
   ctr: number;
 };
 
+export type AffiliateAttributionDimensionRow = {
+  key: string;
+  label: string;
+  clicks: number;
+};
+
+export type AffiliateHubVariantSummary = {
+  impressionsA: number;
+  outboundClicksA: number;
+  ctrA: number;
+  impressionsB: number;
+  outboundClicksB: number;
+  ctrB: number;
+  liftBvsA: number | null;
+};
+
 export type AffiliateHubExperimentSignal =
   | "B_LEADING"
   | "A_LEADING"
@@ -189,6 +205,7 @@ export const DEFAULT_LOW_CVR_MAX_CONVERSION_RATE = 0.025;
 export const DEFAULT_LOW_HUB_CTR_MIN_IMPRESSIONS = 20;
 export const DEFAULT_LOW_HUB_CTR_MAX_CTR = 0.12;
 export const DEFAULT_HUB_EXPERIMENT_MIN_IMPRESSIONS = 20;
+export const DEFAULT_HUB_EXPERIMENT_MIN_ABSOLUTE_LIFT = 0.1;
 
 export type AffiliatePerformanceData = {
   dbAvailable: boolean;
@@ -207,8 +224,16 @@ export type AffiliatePerformanceData = {
   trend: AffiliateTrendPoint[];
   hubCtrRows: AffiliateHubCtrRow[];
   hubExperimentRows: AffiliateHubExperimentCtrRow[];
+  hubVariantSummary: AffiliateHubVariantSummary;
   hubExperimentConclusions: AffiliateHubExperimentConclusion[];
   hubTrend: AffiliateHubTrendPoint[];
+  outboundByCountry: AffiliateAttributionDimensionRow[];
+  outboundByPlacement: AffiliateAttributionDimensionRow[];
+  outboundByLinkKind: AffiliateAttributionDimensionRow[];
+  experimentThresholds: {
+    minImpressionsPerVariant: number;
+    minAbsoluteLift: number;
+  };
   lowHubCtrCandidates: AffiliateHubCtrRow[];
   hubActionRecommendations: AffiliateHubActionRecommendation[];
   topConverters: AffiliateToolPerformanceRow[];
@@ -263,6 +288,75 @@ function parseHubEventVariantFromMetadata(metadata: unknown): "A" | "B" {
     return "B";
   }
   return "A";
+}
+
+function parseLinkKindFromMetadata(
+  metadata: unknown,
+): "AFFILIATE" | "SPONSORED" | "DIRECT" | "UNSPECIFIED" {
+  const parsed = toHubMetadataObject(metadata);
+  const raw = typeof parsed?.linkKind === "string" ? parsed.linkKind.trim().toUpperCase() : "";
+  if (raw === "AFFILIATE" || raw === "SPONSORED" || raw === "DIRECT") {
+    return raw;
+  }
+  return "UNSPECIFIED";
+}
+
+function parsePlacementFromMetadata(metadata: unknown): string {
+  const parsed = toHubMetadataObject(metadata);
+  const raw =
+    typeof parsed?.placementId === "string" ? parsed.placementId.trim() : "";
+  if (!raw) {
+    return "unspecified";
+  }
+  return raw;
+}
+
+function parseCountryCodeFromMetadata(
+  metadata: unknown,
+  countryCode: string | null | undefined,
+): string {
+  const fromColumn = (countryCode || "").trim().toUpperCase();
+  if (/^[A-Z]{2}$/.test(fromColumn)) {
+    return fromColumn;
+  }
+
+  const parsed = toHubMetadataObject(metadata);
+  const fromMetadata =
+    typeof parsed?.countryCode === "string"
+      ? parsed.countryCode.trim().toUpperCase()
+      : "";
+  if (/^[A-Z]{2}$/.test(fromMetadata)) {
+    return fromMetadata;
+  }
+
+  return "UNSPECIFIED";
+}
+
+function getExperimentThresholdsFromEnv(): {
+  minImpressionsPerVariant: number;
+  minAbsoluteLift: number;
+} {
+  const impressionsRaw = Number.parseInt(
+    process.env.AFFILIATE_HUB_MIN_IMPRESSIONS_PER_VARIANT || "",
+    10,
+  );
+  const liftRaw = Number.parseFloat(
+    process.env.AFFILIATE_HUB_MIN_ABSOLUTE_LIFT || "",
+  );
+
+  const minImpressionsPerVariant =
+    Number.isFinite(impressionsRaw) && impressionsRaw > 0
+      ? impressionsRaw
+      : DEFAULT_HUB_EXPERIMENT_MIN_IMPRESSIONS;
+  const minAbsoluteLift =
+    Number.isFinite(liftRaw) && liftRaw >= 0
+      ? liftRaw
+      : DEFAULT_HUB_EXPERIMENT_MIN_ABSOLUTE_LIFT;
+
+  return {
+    minImpressionsPerVariant,
+    minAbsoluteLift,
+  };
 }
 
 function isHubImpressionEventMetadata(metadata: unknown): boolean {
@@ -976,6 +1070,67 @@ export function buildAffiliateHubTrendSeries(input: {
   });
 }
 
+export function buildAttributionDimensionRows(
+  counts: Map<string, number>,
+  options?: {
+    limit?: number;
+    labelForKey?: (key: string) => string;
+  },
+): AffiliateAttributionDimensionRow[] {
+  const limit = Math.max(1, options?.limit ?? 8);
+
+  return Array.from(counts.entries())
+    .filter(([, clicks]) => clicks > 0)
+    .map(([key, clicks]) => ({
+      key,
+      label: options?.labelForKey ? options.labelForKey(key) : key,
+      clicks,
+    }))
+    .sort((a, b) => {
+      if (b.clicks !== a.clicks) {
+        return b.clicks - a.clicks;
+      }
+      return a.label.localeCompare(b.label);
+    })
+    .slice(0, limit);
+}
+
+export function buildHubVariantSummary(
+  rows: AffiliateHubExperimentCtrRow[],
+): AffiliateHubVariantSummary {
+  const totals = rows.reduce(
+    (acc, row) => {
+      acc.impressionsA += row.impressionsA;
+      acc.outboundClicksA += row.outboundClicksA;
+      acc.impressionsB += row.impressionsB;
+      acc.outboundClicksB += row.outboundClicksB;
+      return acc;
+    },
+    {
+      impressionsA: 0,
+      outboundClicksA: 0,
+      impressionsB: 0,
+      outboundClicksB: 0,
+    },
+  );
+
+  const ctrA =
+    totals.impressionsA > 0 ? totals.outboundClicksA / totals.impressionsA : 0;
+  const ctrB =
+    totals.impressionsB > 0 ? totals.outboundClicksB / totals.impressionsB : 0;
+  const liftBvsA = ctrA > 0 ? (ctrB - ctrA) / ctrA : null;
+
+  return {
+    impressionsA: totals.impressionsA,
+    outboundClicksA: totals.outboundClicksA,
+    ctrA,
+    impressionsB: totals.impressionsB,
+    outboundClicksB: totals.outboundClicksB,
+    ctrB,
+    liftBvsA,
+  };
+}
+
 export function getLowHubCtrCandidates(
   rows: AffiliateHubCtrRow[],
   options?: {
@@ -1453,6 +1608,7 @@ export async function getAffiliatePerformanceData(options?: {
     toolSlug: options?.historyToolSlug,
     kind: options?.historyKind,
   });
+  const experimentThresholds = getExperimentThresholdsFromEnv();
 
   try {
     const db = getDb();
@@ -1628,9 +1784,13 @@ export async function getAffiliatePerformanceData(options?: {
       pagePaths: editorialHubPaths,
       labelsByPath: editorialHubLabels,
       variantStatsByPath: hubExperimentStatsByPath,
+      minImpressionsPerVariant: experimentThresholds.minImpressionsPerVariant,
     });
     const hubExperimentConclusions = getHubExperimentConclusions(
       hubExperimentRows,
+      {
+        minAbsoluteLift: experimentThresholds.minAbsoluteLift,
+      },
     );
     const lowHubCtrCandidates = getLowHubCtrCandidates(hubCtrRows);
     const hubActionRows = buildHubActionRowsForRecommendations({
@@ -1685,17 +1845,48 @@ export async function getAffiliatePerformanceData(options?: {
         toolId: trendToolId ? trendToolId : { not: null },
       },
       select: {
+        eventType: true,
         createdAt: true,
+        countryCode: true,
+        metadata: true,
       },
     });
 
     const outboundClicksByDay = new Map<string, number>();
+    const outboundByCountryCount = new Map<string, number>();
+    const outboundByPlacementCount = new Map<string, number>();
+    const outboundByLinkKindCount = new Map<string, number>();
     for (const event of clickEvents) {
       const dayKey = toDayKey(event.createdAt.getTime());
       if (!dayKeySet.has(dayKey)) {
         continue;
       }
       outboundClicksByDay.set(dayKey, (outboundClicksByDay.get(dayKey) || 0) + 1);
+
+      const countryKey = parseCountryCodeFromMetadata(
+        event.metadata,
+        event.countryCode,
+      );
+      outboundByCountryCount.set(
+        countryKey,
+        (outboundByCountryCount.get(countryKey) || 0) + 1,
+      );
+
+      const placementKey = parsePlacementFromMetadata(event.metadata);
+      outboundByPlacementCount.set(
+        placementKey,
+        (outboundByPlacementCount.get(placementKey) || 0) + 1,
+      );
+
+      let linkKindKey = parseLinkKindFromMetadata(event.metadata);
+      if (linkKindKey === "UNSPECIFIED") {
+        linkKindKey =
+          event.eventType === EventType.AFFILIATE_CLICK ? "AFFILIATE" : "DIRECT";
+      }
+      outboundByLinkKindCount.set(
+        linkKindKey,
+        (outboundByLinkKindCount.get(linkKindKey) || 0) + 1,
+      );
     }
 
     const conversionDaily = parseAffiliateManualConversionDailySeries(lines, {
@@ -1714,6 +1905,23 @@ export async function getAffiliatePerformanceData(options?: {
       outboundClicksByDay,
       conversionsByDay: conversionDaily,
     });
+    const outboundByCountry = buildAttributionDimensionRows(outboundByCountryCount, {
+      labelForKey: (key) => (key === "UNSPECIFIED" ? "Unspecified" : key),
+    });
+    const outboundByPlacement = buildAttributionDimensionRows(
+      outboundByPlacementCount,
+      {
+        labelForKey: (key) =>
+          key === "unspecified" ? "Unspecified placement" : key,
+      },
+    );
+    const outboundByLinkKind = buildAttributionDimensionRows(
+      outboundByLinkKindCount,
+      {
+        labelForKey: (key) => key,
+      },
+    );
+    const hubVariantSummary = buildHubVariantSummary(hubExperimentRows);
     const topConverters = getTopConverters(rows);
     const lowCvrCandidates = getLowCvrCandidates(rows);
 
@@ -1734,8 +1942,13 @@ export async function getAffiliatePerformanceData(options?: {
       trend,
       hubCtrRows,
       hubExperimentRows,
+      hubVariantSummary,
       hubExperimentConclusions,
       hubTrend,
+      outboundByCountry,
+      outboundByPlacement,
+      outboundByLinkKind,
+      experimentThresholds,
       lowHubCtrCandidates,
       hubActionRecommendations,
       topConverters,
@@ -1779,10 +1992,15 @@ export async function getAffiliatePerformanceData(options?: {
       pagePaths: editorialHubPaths,
       labelsByPath: editorialHubLabels,
       variantStatsByPath: new Map(),
+      minImpressionsPerVariant: experimentThresholds.minImpressionsPerVariant,
     });
     const hubExperimentConclusions = getHubExperimentConclusions(
       hubExperimentRows,
+      {
+        minAbsoluteLift: experimentThresholds.minAbsoluteLift,
+      },
     );
+    const hubVariantSummary = buildHubVariantSummary(hubExperimentRows);
     const lowHubCtrCandidates = getLowHubCtrCandidates(hubCtrRows);
     const hubActionRows = buildHubActionRowsForRecommendations({
       lowCtrRows: lowHubCtrCandidates,
@@ -1819,8 +2037,13 @@ export async function getAffiliatePerformanceData(options?: {
       trend,
       hubCtrRows,
       hubExperimentRows,
+      hubVariantSummary,
       hubExperimentConclusions,
       hubTrend,
+      outboundByCountry: [],
+      outboundByPlacement: [],
+      outboundByLinkKind: [],
+      experimentThresholds,
       lowHubCtrCandidates,
       hubActionRecommendations,
       topConverters,

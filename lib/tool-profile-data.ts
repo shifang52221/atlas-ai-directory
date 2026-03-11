@@ -26,6 +26,7 @@ type BuildOutboundHrefInput = {
   sourcePath: string;
   affiliateLinkId?: string;
   experimentVariant?: "A" | "B";
+  placementId?: string;
 };
 
 type FallbackToolProfileSeed = Omit<
@@ -191,6 +192,7 @@ export function buildOutboundHref({
   sourcePath,
   affiliateLinkId,
   experimentVariant,
+  placementId,
 }: BuildOutboundHrefInput): string {
   const trackedTarget = withAffiliateTracking(targetUrl);
   const params = new URLSearchParams({
@@ -206,6 +208,9 @@ export function buildOutboundHref({
   if (experimentVariant) {
     params.set("variant", experimentVariant);
   }
+  if (placementId) {
+    params.set("placementId", placementId);
+  }
 
   const signature = buildOutboundSignature({
     toolSlug,
@@ -213,6 +218,7 @@ export function buildOutboundHref({
     linkKind,
     sourcePath,
     affiliateLinkId,
+    placementId,
   });
   if (signature) {
     params.set("sig", signature);
@@ -231,6 +237,7 @@ function mapFallbackProfile(seed: FallbackToolProfileSeed): ToolProfile {
       targetUrl: seed.websiteUrl,
       linkKind,
       sourcePath: `/tools/${seed.slug}`,
+      placementId: "tool_profile_primary",
     }),
     outboundDisclosure: getOutboundDisclosure(linkKind),
   };
@@ -328,6 +335,7 @@ export async function getToolProfileBySlug(
         linkKind,
         sourcePath: `/tools/${tool.slug}`,
         affiliateLinkId: primaryLink?.id,
+        placementId: "tool_profile_primary",
       }),
       outboundDisclosure: getOutboundDisclosure(linkKind),
     };

@@ -20,6 +20,7 @@ describe("outbound signature", () => {
       linkKind: LinkKind.DIRECT,
       sourcePath: "/tools/zapier-ai",
       affiliateLinkId: "",
+      placementId: "tool_profile_primary",
     };
 
     const signature = buildOutboundSignature(input);
@@ -34,6 +35,7 @@ describe("outbound signature", () => {
       linkKind: LinkKind.DIRECT,
       sourcePath: "/tools/zapier-ai",
       affiliateLinkId: "",
+      placementId: "tool_profile_primary",
     };
 
     const signature = buildOutboundSignature(input);
@@ -41,6 +43,27 @@ describe("outbound signature", () => {
       {
         ...input,
         target: "https://example.com/phishing",
+      },
+      signature,
+    );
+    expect(valid).toBe(false);
+  });
+
+  it("rejects signatures if placement id is tampered", () => {
+    const input = {
+      toolSlug: "zapier-ai",
+      target: "https://zapier.com/?ref=atlas",
+      linkKind: LinkKind.DIRECT,
+      sourcePath: "/tools/zapier-ai",
+      affiliateLinkId: "",
+      placementId: "tool_profile_primary",
+    };
+
+    const signature = buildOutboundSignature(input);
+    const valid = isValidOutboundSignature(
+      {
+        ...input,
+        placementId: "editorial_hub_recommendation",
       },
       signature,
     );

@@ -523,6 +523,7 @@ export function buildEditorialHubRankedTools(
           linkKind: LinkKind.DIRECT,
           sourcePath: config.path,
           experimentVariant: variant,
+          placementId: "editorial_hub_recommendation",
         }),
       };
     })

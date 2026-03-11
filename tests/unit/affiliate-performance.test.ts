@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildAttributionDimensionRows,
   buildAffiliateHubCtrRows,
   buildAffiliateHubExperimentCtrRows,
+  buildHubVariantSummary,
   buildHubActionRowsForRecommendations,
   buildLowHubCtrActionRecommendations,
   buildAffiliateHubTrendSeries,
@@ -874,5 +876,67 @@ describe("affiliate performance manual metric parser", () => {
       DISMISSED: 1,
       UNVERIFIED: 2,
     });
+  });
+
+  it("builds attribution dimension rows sorted by click volume", () => {
+    const rows = buildAttributionDimensionRows(
+      new Map([
+        ["US", 10],
+        ["DE", 4],
+        ["UNSPECIFIED", 7],
+      ]),
+      {
+        labelForKey: (key) => key,
+      },
+    );
+
+    expect(rows).toEqual([
+      { key: "US", label: "US", clicks: 10 },
+      { key: "UNSPECIFIED", label: "UNSPECIFIED", clicks: 7 },
+      { key: "DE", label: "DE", clicks: 4 },
+    ]);
+  });
+
+  it("builds hub variant summary from experiment rows", () => {
+    const summary = buildHubVariantSummary([
+      {
+        pagePath: "/a",
+        pageTitle: "A",
+        impressionsA: 100,
+        outboundClicksA: 10,
+        ctrA: 0.1,
+        impressionsB: 120,
+        outboundClicksB: 18,
+        ctrB: 0.15,
+        liftBvsA: 0.5,
+        pValue: 0.02,
+        confidence: 0.98,
+        isSignificant: true,
+        signal: "B_LEADING",
+      },
+      {
+        pagePath: "/b",
+        pageTitle: "B",
+        impressionsA: 80,
+        outboundClicksA: 16,
+        ctrA: 0.2,
+        impressionsB: 90,
+        outboundClicksB: 9,
+        ctrB: 0.1,
+        liftBvsA: -0.5,
+        pValue: 0.03,
+        confidence: 0.97,
+        isSignificant: true,
+        signal: "A_LEADING",
+      },
+    ]);
+
+    expect(summary.impressionsA).toBe(180);
+    expect(summary.outboundClicksA).toBe(26);
+    expect(summary.ctrA).toBeCloseTo(26 / 180, 6);
+    expect(summary.impressionsB).toBe(210);
+    expect(summary.outboundClicksB).toBe(27);
+    expect(summary.ctrB).toBeCloseTo(27 / 210, 6);
+    expect(summary.liftBvsA).toBeCloseTo((27 / 210 - 26 / 180) / (26 / 180), 6);
   });
 });

@@ -199,6 +199,29 @@ function buildAffiliateHref(input: {
   return query ? `/admin/affiliate?${query}` : "/admin/affiliate";
 }
 
+function buildExperimentExportHref(input: {
+  window: WindowKey;
+  toolSlug: string | null;
+  hubPath?: string | null;
+}): string {
+  const params = new URLSearchParams();
+
+  if (input.window !== "7d") {
+    params.set("window", input.window);
+  }
+  if (input.toolSlug) {
+    params.set("tool", input.toolSlug);
+  }
+  if (input.hubPath) {
+    params.set("hub", input.hubPath);
+  }
+
+  const query = params.toString();
+  return query
+    ? `/api/admin/affiliate/experiments/export?${query}`
+    : "/api/admin/affiliate/experiments/export";
+}
+
 export default async function AdminAffiliatePage({
   searchParams,
 }: AdminAffiliatePageProps) {
@@ -352,6 +375,56 @@ export default async function AdminAffiliatePage({
           Conversion rate based on outbound clicks:{" "}
           <strong>{toPercent(data.totals.conversionRate)}</strong>
         </p>
+      </section>
+
+      <section className={styles.dashboardGrid}>
+        <article className={styles.panel}>
+          <h2>Attribution by Country ({windowKey})</h2>
+          {data.outboundByCountry.length === 0 ? (
+            <p>No country-level outbound data yet.</p>
+          ) : (
+            <ul className={styles.rankList}>
+              {data.outboundByCountry.map((row) => (
+                <li key={`country-${row.key}`}>
+                  <span>{row.label}</span>
+                  <strong>{row.clicks}</strong>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+
+        <article className={styles.panel}>
+          <h2>Attribution by Placement ({windowKey})</h2>
+          {data.outboundByPlacement.length === 0 ? (
+            <p>No placement-level outbound data yet.</p>
+          ) : (
+            <ul className={styles.rankList}>
+              {data.outboundByPlacement.map((row) => (
+                <li key={`placement-${row.key}`}>
+                  <span>{row.label}</span>
+                  <strong>{row.clicks}</strong>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+
+        <article className={styles.panel}>
+          <h2>Attribution by Link Kind ({windowKey})</h2>
+          {data.outboundByLinkKind.length === 0 ? (
+            <p>No link-kind outbound data yet.</p>
+          ) : (
+            <ul className={styles.rankList}>
+              {data.outboundByLinkKind.map((row) => (
+                <li key={`link-kind-${row.key}`}>
+                  <span>{row.label}</span>
+                  <strong>{row.clicks}</strong>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
       </section>
 
       <section className={styles.dashboardGrid}>
@@ -586,6 +659,38 @@ export default async function AdminAffiliatePage({
         <p>
           Variant traffic is tracked from hub URLs using <code>?variant=a|b</code>.
           Legacy events without variant metadata are counted as A.
+        </p>
+        <p>
+          Thresholds: min impressions per variant {"\u2265"}{" "}
+          <strong>{data.experimentThresholds.minImpressionsPerVariant}</strong>, minimum
+          absolute lift {"\u2265"}{" "}
+          <strong>{toPercent(data.experimentThresholds.minAbsoluteLift)}</strong>.
+        </p>
+        <p>
+          Variant totals in selected window: A{" "}
+          <strong>
+            {data.hubVariantSummary.impressionsA} / {data.hubVariantSummary.outboundClicksA} (
+            {toPercent(data.hubVariantSummary.ctrA)})
+          </strong>{" "}
+          vs B{" "}
+          <strong>
+            {data.hubVariantSummary.impressionsB} / {data.hubVariantSummary.outboundClicksB} (
+            {toPercent(data.hubVariantSummary.ctrB)})
+          </strong>{" "}
+          with lift{" "}
+          <strong>{toLiftPercent(data.hubVariantSummary.liftBvsA)}</strong>.
+        </p>
+        <p>
+          <Link
+            className={styles.filterRowLink}
+            href={buildExperimentExportHref({
+              window: windowKey,
+              toolSlug: data.trendToolSlug,
+              hubPath: data.hubTrendPath,
+            })}
+          >
+            Export Experiment CSV
+          </Link>
         </p>
         <h3>Experiment Decision Cards</h3>
         {data.hubExperimentConclusions.length === 0 ? (

@@ -13,6 +13,9 @@ test("tool detail page renders profile and monetization slots", async ({
   await expect(
     page.getByRole("link", { name: "Visit Website" }),
   ).toHaveAttribute("href", /\/api\/outbound\?/);
+  await expect(
+    page.getByRole("link", { name: "Visit Website" }),
+  ).toHaveAttribute("href", /placementId=tool_profile_primary/);
   await expect(page.locator('[data-ui="adsense-slot"]')).toHaveCount(2);
   await expect(
     page.getByRole("heading", { level: 2, name: "Editorial Review" }),

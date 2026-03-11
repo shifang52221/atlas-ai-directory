@@ -85,5 +85,6 @@ for (const hub of hubs) {
       .getAttribute("href");
     expect(outboundHref).toBeTruthy();
     expect(outboundHref).toContain("variant=B");
+    expect(outboundHref).toContain("placementId=editorial_hub_recommendation");
   });
 }

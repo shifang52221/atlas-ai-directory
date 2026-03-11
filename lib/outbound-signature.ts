@@ -7,6 +7,7 @@ type OutboundSignatureInput = {
   linkKind: LinkKind;
   sourcePath: string;
   affiliateLinkId?: string;
+  placementId?: string;
 };
 
 declare global {
@@ -37,6 +38,7 @@ function toSignaturePayload(input: OutboundSignatureInput): string {
     input.linkKind,
     input.sourcePath.trim(),
     input.affiliateLinkId?.trim() || "",
+    input.placementId?.trim() || "",
   ].join("|");
 }
 

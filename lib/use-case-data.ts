@@ -160,6 +160,7 @@ function toToolCard(toolSlug: string, useCaseSlug: string): UseCaseToolCard | nu
       targetUrl: tool.websiteUrl,
       linkKind: LinkKind.DIRECT,
       sourcePath: `/use-cases/${useCaseSlug}`,
+      placementId: "use_case_recommendation",
     }),
   };
 }
@@ -250,6 +251,7 @@ export async function getUseCaseProfileBySlug(
           linkKind,
           sourcePath: `/use-cases/${category.slug}`,
           affiliateLinkId: primaryLink?.id,
+          placementId: "use_case_recommendation",
         }),
       };
     });
