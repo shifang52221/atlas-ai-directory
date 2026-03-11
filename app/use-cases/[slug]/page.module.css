@@ -241,6 +241,19 @@
   line-height: 1.52;
 }
 
+.disclosure {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.disclosure a {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 @media (max-width: 1060px) {
   .topbar {
     grid-template-columns: 1fr;

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdsenseSlotCard } from "@/components/adsense-slot-card";
 import { SiteFooter } from "@/components/site-footer";
+import { isUseCaseDetailAdsEligible } from "@/lib/adsense-policy";
 import {
   getFallbackUseCaseSlugs,
   getUseCaseProfileBySlug,
@@ -54,6 +55,12 @@ export default async function UseCaseDetailPage({
 
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
   const canonicalUrl = new URL(`/use-cases/${profile.slug}`, baseUrl).toString();
+  const isAdsEligible = isUseCaseDetailAdsEligible({
+    description: profile.description,
+    summary: profile.summary,
+    checklist: profile.checklist,
+    toolsCount: profile.tools.length,
+  });
   const useCaseJsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -180,13 +187,31 @@ export default async function UseCaseDetailPage({
               </div>
             </article>
 
-            <AdsenseSlotCard
-              className={styles.card}
-              labelClassName={styles.adLabel}
-              slotKey="useCaseSidebar"
-              title="Google AdSense Placement"
-              fallbackBody="Place intent-matched in-feed ad units here for high relevance traffic from use-case searches."
-            />
+            {isAdsEligible ? (
+              <AdsenseSlotCard
+                className={styles.card}
+                labelClassName={styles.adLabel}
+                pagePath={`/use-cases/${profile.slug}`}
+                slotKey="useCaseSidebar"
+                title="Google AdSense Placement"
+                fallbackBody="Place intent-matched in-feed ad units here for high relevance traffic from use-case searches."
+              />
+            ) : (
+              <article className={styles.card}>
+                <h2>Monetization Safety Gate</h2>
+                <p>
+                  Ads are paused on this page until editorial depth reaches our policy threshold.
+                </p>
+              </article>
+            )}
+
+            <article className={styles.card}>
+              <p className={styles.disclosure}>
+                Affiliate links and ad placements on this page follow our{" "}
+                <Link href="/affiliate-disclosure">Affiliate Disclosure</Link> and{" "}
+                <Link href="/editorial-policy">Editorial Policy</Link>.
+              </p>
+            </article>
           </aside>
         </section>
 

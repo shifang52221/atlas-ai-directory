@@ -19,6 +19,15 @@ test("use-case detail page renders tool recommendations and ad slot", async ({
     page.getByRole("link", { name: "Visit website" }).first(),
   ).toHaveAttribute("href", /\/api\/outbound\?/);
   await expect(page.locator('[data-ui="adsense-slot"]')).toBeVisible();
+  await expect(
+    page.getByText("Affiliate links and ad placements on this page follow"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Affiliate Disclosure" }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Editorial Policy" }).first(),
+  ).toBeVisible();
 
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdsenseSlotCard } from "@/components/adsense-slot-card";
 import { SiteFooter } from "@/components/site-footer";
+import { isToolDetailAdsEligible } from "@/lib/adsense-policy";
 import { getToolDetailSeoContent } from "@/lib/tool-detail-seo-content";
 import { getFallbackToolProfiles, getToolProfileBySlug } from "@/lib/tool-profile-data";
 import styles from "./page.module.css";
@@ -73,6 +74,12 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
   const reviewScore = seoContent.reviewScore;
   const faqItems = seoContent.faqItems;
   const useCaseLinks = seoContent.useCaseLinks;
+  const isAdsEligible = isToolDetailAdsEligible({
+    description: profile.description,
+    highlights: profile.highlights,
+    comparisonNotes: profile.comparisonNotes,
+    faqCount: faqItems.length,
+  });
   const fallbackToolMap = new Map(
     getFallbackToolProfiles().map((tool) => [tool.slug, tool]),
   );
@@ -330,22 +337,38 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
             </ul>
           </article>
 
-          <AdsenseSlotCard
-            className={styles.card}
-            labelClassName={styles.adLabel}
-            slotKey="toolDetailPrimary"
-            title="Google AdSense Placement"
-            fallbackBody="Reserve this block for in-content ad units. Best position: after key value proposition and before alternative comparisons."
-          />
+          {isAdsEligible ? (
+            <>
+              <AdsenseSlotCard
+                className={styles.card}
+                labelClassName={styles.adLabel}
+                pagePath={`/tools/${profile.slug}`}
+                slotKey="toolDetailPrimary"
+                title="Google AdSense Placement"
+                fallbackBody="Reserve this block for in-content ad units. Best position: after key value proposition and before alternative comparisons."
+              />
 
-          <AdsenseSlotCard
-            className={styles.card}
-            labelClassName={styles.adLabel}
-            slotKey="toolDetailSecondary"
-            title="Sponsored Alternatives"
-            placementLabel="Affiliate slot"
-            fallbackBody="Use this area for sponsored comparison cards with clear disclosure and higher-intent outbound links."
-          />
+              <AdsenseSlotCard
+                className={styles.card}
+                labelClassName={styles.adLabel}
+                pagePath={`/tools/${profile.slug}`}
+                slotKey="toolDetailSecondary"
+                title="Sponsored Alternatives"
+                placementLabel="Affiliate slot"
+                fallbackBody="Use this area for sponsored comparison cards with clear disclosure and higher-intent outbound links."
+              />
+            </>
+          ) : (
+            <article className={styles.card}>
+              <h2>Monetization Safety Gate</h2>
+              <p>
+                Ads are disabled on this profile until content depth and review coverage meet our
+                policy threshold. See our{" "}
+                <Link href="/affiliate-disclosure">Affiliate Disclosure</Link> and{" "}
+                <Link href="/editorial-policy">Editorial Policy</Link>.
+              </p>
+            </article>
+          )}
         </section>
 
         <SiteFooter />
