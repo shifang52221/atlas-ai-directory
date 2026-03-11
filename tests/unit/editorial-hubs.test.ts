@@ -50,6 +50,16 @@ describe("editorial hub experiments", () => {
       expect(
         config.continueLinks.some((link) => link.href === "/affiliate-disclosure"),
       ).toBe(true);
+
+      expect(config.whoFits.length).toBeGreaterThanOrEqual(3);
+      expect(config.avoidIf.length).toBeGreaterThanOrEqual(2);
+      expect(config.implementationPlan.length).toBeGreaterThanOrEqual(4);
+      expect(config.kpiScorecard.length).toBeGreaterThanOrEqual(3);
+      expect(config.comparisonQuestions.length).toBeGreaterThanOrEqual(3);
+      for (const item of config.comparisonQuestions) {
+        expect(item.question).toMatch(/\bvs\b/i);
+        expect(item.answer.length).toBeGreaterThan(30);
+      }
     }
   });
 });

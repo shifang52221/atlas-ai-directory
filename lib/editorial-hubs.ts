@@ -14,6 +14,11 @@ type HubFaqItem = {
   answer: string;
 };
 
+type HubComparisonQuestion = {
+  question: string;
+  answer: string;
+};
+
 type ContinueLink = {
   label: string;
   href: string;
@@ -35,6 +40,11 @@ export type EditorialHubConfig = {
   metadataDescription: string;
   heroSubtitle: string;
   heroMeta: [string, string, string];
+  whoFits: string[];
+  avoidIf: string[];
+  implementationPlan: string[];
+  kpiScorecard: string[];
+  comparisonQuestions: HubComparisonQuestion[];
   recommendations: HubRecommendation[];
   faqItems: HubFaqItem[];
   continueLinks: ContinueLink[];
@@ -77,6 +87,43 @@ const editorialHubs: EditorialHubConfig[] = [
     heroSubtitle:
       "Editorial shortlist for teams choosing automation platforms this quarter. We rank tools by deployment speed, operational control, and real-world workflow fit.",
     heroMeta: ["Updated monthly", "Global English market", "Affiliate-supported with disclosure"],
+    whoFits: [
+      "Ops teams running repeated cross-app workflows with clear process ownership",
+      "Organizations that need fast time-to-value with measurable reliability improvements",
+      "Leaders comparing managed automation vs technical-control tradeoffs this quarter",
+    ],
+    avoidIf: [
+      "Your workflow definitions are unstable and owners are not yet assigned",
+      "You need a purely engineering benchmark with no operator-centric priorities",
+    ],
+    implementationPlan: [
+      "Week 1: baseline workflow volume, failure rate, and current turnaround time",
+      "Week 2: pilot top 2 automations and track setup effort by owner role",
+      "Week 3: add alerting, fallback handling, and naming governance for production",
+      "Week 4: scale only proven workflows and freeze scorecard review cadence",
+    ],
+    kpiScorecard: [
+      "Workflow success rate by category after first 14 days",
+      "Mean setup time to first production-ready automation",
+      "Monthly automation cost per completed workflow run",
+    ],
+    comparisonQuestions: [
+      {
+        question: "Zapier AI vs Make: which is better for mixed operator teams?",
+        answer:
+          "Zapier AI is usually better for faster launch and simpler handoffs, while Make is stronger when branching depth and visual scenario control are critical.",
+      },
+      {
+        question: "Make vs n8n: what should teams compare first before scaling?",
+        answer:
+          "Compare maintenance ownership, debugging workflow, and long-term control requirements before choosing based only on UI preferences.",
+      },
+      {
+        question: "n8n vs Relevance AI: when does agent orchestration beat workflow builders?",
+        answer:
+          "Choose n8n when custom infrastructure control is central, and choose Relevance AI when role-based agent workflows and governance are the main objective.",
+      },
+    ],
     recommendations: [
       {
         slug: "zapier-ai",
@@ -169,6 +216,43 @@ const editorialHubs: EditorialHubConfig[] = [
     heroSubtitle:
       "Sales teams need faster pipeline velocity, cleaner enrichment, and reliable handoffs. This shortlist ranks agent tools by GTM impact and operational reliability.",
     heroMeta: ["Quarterly refreshed", "B2B GTM focus", "Affiliate-supported with disclosure"],
+    whoFits: [
+      "Revenue teams that run weekly outbound programs and enforce CRM hygiene",
+      "RevOps leaders needing enrichment precision and reliable rep handoff",
+      "Sales orgs measuring reply quality and meeting conversion by segment",
+    ],
+    avoidIf: [
+      "Your outbound motion is still ad-hoc and lacks ICP discipline",
+      "No team can own enrichment quality and routing governance end-to-end",
+    ],
+    implementationPlan: [
+      "Week 1: lock ICP tiers, required enrichment fields, and lead routing logic",
+      "Week 2: launch one outbound pilot sequence with strict QA on data accuracy",
+      "Week 3: instrument meeting-quality and reply-rate reporting by segment",
+      "Week 4: scale winning plays and retire low-performing workflow branches",
+    ],
+    kpiScorecard: [
+      "Positive reply rate by ICP segment",
+      "Meeting-booked conversion from first-touch sequences",
+      "Lead-to-opportunity conversion within 30 days",
+    ],
+    comparisonQuestions: [
+      {
+        question: "Clay vs Relevance AI: which is stronger for sales execution?",
+        answer:
+          "Clay is typically stronger for enrichment-first targeting and outbound precision, while Relevance AI is stronger for multi-agent workflow orchestration.",
+      },
+      {
+        question: "Clay vs Zapier AI: what should RevOps benchmark first?",
+        answer:
+          "Benchmark enrichment depth and signal freshness against cross-app automation speed and operational reliability to align with your GTM bottleneck.",
+      },
+      {
+        question: "Relevance AI vs Lindy: which fits SMB sales teams better?",
+        answer:
+          "SMB teams often launch faster with Lindy, while Relevance AI is the better fit once role-based coordination and governance become priorities.",
+      },
+    ],
     recommendations: [
       {
         slug: "clay",
@@ -261,6 +345,43 @@ const editorialHubs: EditorialHubConfig[] = [
     heroSubtitle:
       "Support operators need faster response times without breaking quality. This page ranks tools by implementation speed, handoff quality, and control depth.",
     heroMeta: ["Monthly maintained", "Support ops focus", "Affiliate-supported with disclosure"],
+    whoFits: [
+      "Support teams with high ticket volume and measurable SLA pressure",
+      "Operators needing reliable triage, escalation paths, and QA controls",
+      "Leaders balancing faster responses with consistent support quality",
+    ],
+    avoidIf: [
+      "Knowledge base and escalation ownership are still unclear",
+      "Support workflows change daily without stable process baselines",
+    ],
+    implementationPlan: [
+      "Week 1: map top ticket intents and define escalation confidence thresholds",
+      "Week 2: automate low-risk triage queues with mandatory human fallback",
+      "Week 3: add response-quality review and reopen-rate monitoring",
+      "Week 4: expand to adjacent queues only after SLA and quality targets stabilize",
+    ],
+    kpiScorecard: [
+      "First response time by queue priority",
+      "Resolution time and reopened-ticket rate",
+      "Escalation accuracy for AI-assisted routing",
+    ],
+    comparisonQuestions: [
+      {
+        question: "Lindy vs Zapier AI: which is better for support-first teams?",
+        answer:
+          "Lindy is often stronger for agent-led inbox workflows, while Zapier AI is stronger for deterministic routing across multiple support systems.",
+      },
+      {
+        question: "Zapier AI vs n8n: how should support ops choose?",
+        answer:
+          "Choose Zapier AI for managed speed and broad app coverage; choose n8n when compliance, self-hosting, and custom control are non-negotiable.",
+      },
+      {
+        question: "Relevance AI vs Make: when does each support model win?",
+        answer:
+          "Relevance AI wins for role-based agent orchestration, while Make wins when teams prioritize visual branching and transparent workflow debugging.",
+      },
+    ],
     recommendations: [
       {
         slug: "lindy",
@@ -353,6 +474,43 @@ const editorialHubs: EditorialHubConfig[] = [
     heroSubtitle:
       "Marketing teams need AI stacks that move from ideation to execution without workflow breaks. This shortlist emphasizes deployment speed and measurable campaign ops impact.",
     heroMeta: ["Monthly maintained", "GTM + content focus", "Affiliate-supported with disclosure"],
+    whoFits: [
+      "Marketing ops teams running multi-channel campaigns on recurring cadence",
+      "Teams needing faster campaign execution with measurable attribution quality",
+      "Organizations combining enrichment, orchestration, and content operations",
+    ],
+    avoidIf: [
+      "Campaign processes are not standardized and ownership is fragmented",
+      "There is no KPI framework connecting automation to pipeline outcomes",
+    ],
+    implementationPlan: [
+      "Week 1: baseline campaign cycle times and attribution data reliability",
+      "Week 2: pilot one campaign workflow from trigger to reporting handoff",
+      "Week 3: instrument spend, error rate, and conversion-quality checkpoints",
+      "Week 4: templatize winning workflows and enforce launch governance",
+    ],
+    kpiScorecard: [
+      "Campaign launch cycle time from brief to execution",
+      "Attribution data completeness across core channels",
+      "Cost per qualified engagement after automation rollout",
+    ],
+    comparisonQuestions: [
+      {
+        question: "Make vs Clay: which is better for growth marketing workflows?",
+        answer:
+          "Make is stronger for cross-channel orchestration and branching control, while Clay is stronger for enrichment-heavy personalization and outbound precision.",
+      },
+      {
+        question: "Zapier AI vs Make: what should marketing ops evaluate first?",
+        answer:
+          "Benchmark setup speed and connector coverage against long-term scenario complexity and maintenance overhead.",
+      },
+      {
+        question: "Clay vs n8n: when should teams switch from GTM tooling to custom stacks?",
+        answer:
+          "Use Clay when enrichment-led execution drives outcomes, and shift to n8n when infrastructure control and custom logic become strategic requirements.",
+      },
+    ],
     recommendations: [
       {
         slug: "make",

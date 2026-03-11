@@ -37,6 +37,21 @@ for (const hub of hubs) {
     await expect(
       page.getByRole("heading", { level: 2, name: "Evidence and review basis" }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Who this shortlist fits" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Avoid this shortlist if" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Implementation playbook" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "KPI scorecard" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Comparison questions" }),
+    ).toBeVisible();
     await expect(page.getByRole("table")).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "FAQ" })).toBeVisible();
 

@@ -1,6 +1,6 @@
 # Affiliate Link Governance Report
 
-- Generated at: 2026-03-11 12:53:17Z
+- Generated at: 2026-03-11 13:14:06Z
 - Scope: fallback profile primary outbound links (global English launch set)
 - Total links checked: 6
 - Passing links: 6
@@ -10,12 +10,12 @@
 
 | Tool Slug | Region | Link Kind | Website URL | Status | Result | Latency(ms) | Note |
 |---|---|---|---|---:|---|---:|---|
-| zapier-ai | global | DIRECT | https://zapier.com | 200 | PASS | 752 | ok |
-| make | global | DIRECT | https://www.make.com | 301 | PASS | 943 | location: /en |
-| lindy | global | DIRECT | https://www.lindy.ai | 200 | PASS | 633 | ok |
-| relevance-ai | global | DIRECT | https://relevanceai.com | 200 | PASS | 445 | ok |
-| n8n | global | DIRECT | https://n8n.io | 200 | PASS | 840 | ok |
-| clay | global | DIRECT | https://www.clay.com | 200 | PASS | 1438 | ok |
+| zapier-ai | global | DIRECT | https://zapier.com | 200 | PASS | 818 | ok |
+| make | global | DIRECT | https://www.make.com | 301 | PASS | 629 | location: /en |
+| lindy | global | DIRECT | https://www.lindy.ai | 200 | PASS | 610 | ok |
+| relevance-ai | global | DIRECT | https://relevanceai.com | 200 | PASS | 405 | ok |
+| n8n | global | DIRECT | https://n8n.io | 200 | PASS | 1955 | ok |
+| clay | global | DIRECT | https://www.clay.com | 200 | PASS | 1949 | ok |
 
 ## Governance Controls
 

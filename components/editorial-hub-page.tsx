@@ -46,7 +46,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
       },
       {
         "@type": "FAQPage",
-        mainEntity: config.faqItems.map((item) => ({
+        mainEntity: [...config.faqItems, ...config.comparisonQuestions].map((item) => ({
           "@type": "Question",
           name: item.question,
           acceptedAnswer: {
@@ -136,6 +136,54 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
                   <Link href={`/tools/${tool.slug}`}>{view.ctaSecondaryLabel}</Link>
                 </div>
               </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2>Who this shortlist fits</h2>
+          <ul className={styles.list}>
+            {config.whoFits.map((item) => (
+              <li key={`fit-${item}`}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className={styles.section}>
+          <h2>Avoid this shortlist if</h2>
+          <ul className={styles.list}>
+            {config.avoidIf.map((item) => (
+              <li key={`avoid-${item}`}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className={styles.section}>
+          <h2>Implementation playbook</h2>
+          <ol className={styles.list}>
+            {config.implementationPlan.map((item) => (
+              <li key={`implementation-${item}`}>{item}</li>
+            ))}
+          </ol>
+        </section>
+
+        <section className={styles.section}>
+          <h2>KPI scorecard</h2>
+          <ul className={styles.list}>
+            {config.kpiScorecard.map((item) => (
+              <li key={`kpi-${item}`}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className={styles.section}>
+          <h2>Comparison questions</h2>
+          <div className={styles.faqList}>
+            {config.comparisonQuestions.map((item) => (
+              <details key={`comparison-${item.question}`} className={styles.faqItem}>
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
             ))}
           </div>
         </section>
