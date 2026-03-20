@@ -30,6 +30,28 @@ test("sitemap.xml exposes core URLs and hreflang alternates", async ({
   expect(body).toContain("<loc>http://localhost:3000/best-ai-agents-for-sales</loc>");
   expect(body).toContain("<loc>http://localhost:3000/best-ai-tools-for-support</loc>");
   expect(body).toContain("<loc>http://localhost:3000/best-ai-tools-for-marketing</loc>");
+  expect(body).toContain(
+    "<loc>http://localhost:3000/best-ai-automation-tools-for-small-business</loc>",
+  );
+  expect(body).toContain("<loc>http://localhost:3000/make-alternatives</loc>");
+  expect(body).toContain("<loc>http://localhost:3000/semrush-alternatives</loc>");
+  expect(body).toContain("<loc>http://localhost:3000/monday-vs-clickup-for-ops</loc>");
+  expect(body).toContain("<loc>http://localhost:3000/hubspot-alternatives-for-startups</loc>");
+  expect(body).toContain("<loc>http://localhost:3000/synthesia-alternatives</loc>");
+  expect(body).toContain("<loc>http://localhost:3000/descript-alternatives</loc>");
+  expect(body).toContain(
+    "<loc>http://localhost:3000/ai-sales-automation-tools-for-lead-enrichment</loc>",
+  );
+  expect(body).toContain(
+    "<loc>http://localhost:3000/ai-workflow-tools-for-internal-operations</loc>",
+  );
+  expect(body).toContain("<loc>http://localhost:3000/best-ai-sales-agents-for-smb</loc>");
+  expect(body).toContain(
+    "<loc>http://localhost:3000/best-ai-tools-for-marketing-under-100</loc>",
+  );
+  expect(body).toContain(
+    "<loc>http://localhost:3000/best-ai-tools-for-support-ticket-triage</loc>",
+  );
   expect(body).toContain("<loc>http://localhost:3000/tools/zapier-ai</loc>");
   expect(body).toContain(
     "<loc>http://localhost:3000/use-cases/support-automation</loc>",

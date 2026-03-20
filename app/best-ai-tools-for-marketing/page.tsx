@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { EditorialHubPage } from "@/components/editorial-hub-page";
 import {
+  buildEditorialHubMetadata,
   getEditorialHubConfigOrThrow,
   parseEditorialHubVariant,
 } from "@/lib/editorial-hubs";
@@ -8,15 +9,7 @@ import {
 const hubConfig = getEditorialHubConfigOrThrow("/best-ai-tools-for-marketing");
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
-
-  return {
-    title: `${hubConfig.title} | Atlas AI Directory`,
-    description: hubConfig.metadataDescription,
-    alternates: {
-      canonical: new URL(hubConfig.path, baseUrl).toString(),
-    },
-  };
+  return buildEditorialHubMetadata(hubConfig);
 }
 
 type BestAiToolsForMarketingPageProps = {
@@ -33,3 +26,4 @@ export default async function BestAiToolsForMarketingPage({
   const variant = parseEditorialHubVariant(query.variant || query.v);
   return <EditorialHubPage config={hubConfig} variant={variant} />;
 }
+

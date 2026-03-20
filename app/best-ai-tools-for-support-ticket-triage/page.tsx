@@ -6,24 +6,23 @@ import {
   parseEditorialHubVariant,
 } from "@/lib/editorial-hubs";
 
-const hubConfig = getEditorialHubConfigOrThrow("/best-ai-tools-for-support");
+const hubConfig = getEditorialHubConfigOrThrow("/best-ai-tools-for-support-ticket-triage");
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildEditorialHubMetadata(hubConfig);
 }
 
-type BestAiToolsForSupportPageProps = {
+type CommercialPageProps = {
   searchParams: Promise<{
     variant?: string;
     v?: string;
   }>;
 };
 
-export default async function BestAiToolsForSupportPage({
+export default async function CommercialPage({
   searchParams,
-}: BestAiToolsForSupportPageProps) {
+}: CommercialPageProps) {
   const query = await searchParams;
   const variant = parseEditorialHubVariant(query.variant || query.v);
   return <EditorialHubPage config={hubConfig} variant={variant} />;
 }
-
