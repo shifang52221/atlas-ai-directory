@@ -2,10 +2,10 @@ import Link from "next/link";
 import styles from "./site-footer.module.css";
 
 const primaryLinks = [
-  { label: "Categories", href: "/use-cases" },
-  { label: "Tools", href: "/tools" },
-  { label: "Compare", href: "/compare" },
-  { label: "Workflows", href: "/workflows" },
+  { label: "Explore Use Cases", href: "/use-cases" },
+  { label: "Browse All Tools", href: "/tools" },
+  { label: "Compare Categories", href: "/compare" },
+  { label: "Open Workflow Templates", href: "/workflows" },
 ];
 
 const utilityLinks = [
@@ -20,6 +20,16 @@ const hubLinks = [
   { label: "Best AI Agents for Sales Teams", href: "/best-ai-agents-for-sales" },
   { label: "Best AI Tools for Customer Support", href: "/best-ai-tools-for-support" },
   { label: "Best AI Tools for Marketing Teams", href: "/best-ai-tools-for-marketing" },
+];
+
+const commercialLinks = [
+  {
+    label: "Best AI Automation Tools for Small Business",
+    href: "/best-ai-automation-tools-for-small-business",
+  },
+  { label: "Make Alternatives", href: "/make-alternatives" },
+  { label: "Semrush Alternatives", href: "/semrush-alternatives" },
+  { label: "monday vs ClickUp for Ops Teams", href: "/monday-vs-clickup-for-ops" },
 ];
 
 export function SiteFooter() {
@@ -55,6 +65,15 @@ export function SiteFooter() {
         <div className={styles.linkGroup}>
           <p className={styles.groupTitle}>Best-of Hubs</p>
           {hubLinks.map((item) => (
+            <Link key={item.label} href={item.href}>
+              {item.label}
+            </Link>
+          ))}
+        </div>
+
+        <div className={styles.linkGroup}>
+          <p className={styles.groupTitle}>Commercial Guides</p>
+          {commercialLinks.map((item) => (
             <Link key={item.label} href={item.href}>
               {item.label}
             </Link>

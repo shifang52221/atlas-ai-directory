@@ -505,7 +505,7 @@ export async function getUseCaseProfileBySlug(
         tag: tool.tagline || "AI Tool",
         blurb:
           tool.description?.slice(0, 180) ||
-          "Profile details are being expanded with richer benchmark data.",
+          "Operator-ready summary covering fit, setup tradeoffs, and rollout context.",
         profileHref: `/tools/${tool.slug}`,
         outboundHref: buildOutboundHref({
           toolSlug: tool.slug,

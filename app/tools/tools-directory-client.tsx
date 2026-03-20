@@ -139,7 +139,7 @@ export default function ToolsDirectoryClient({ data }: ToolsDirectoryClientProps
           <div className={styles.sectionHead}>
             <h2 id="directory-results-title">Directory Results</h2>
             <p>
-              {visibleTools.length} tools · page {normalizedPage} of {totalPages}
+              {visibleTools.length} tools page {normalizedPage} of {totalPages}
             </p>
           </div>
 

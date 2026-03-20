@@ -7,6 +7,13 @@ test("tools directory supports search, filter, sort, and pagination", async ({
 
   await expect(page.getByRole("heading", { level: 1, name: "Tools" })).toBeVisible();
   await expect(page.locator('[data-ui="tool-directory-card"]')).toHaveCount(4);
+  await expect(page.getByText("6 tools page 1 of 2")).toBeVisible();
+  await expect(page.locator('[data-ui="tool-directory-card"]').first()).toContainText(
+    "~45 min to first workflow",
+  );
+  await expect(page.locator('[data-ui="tool-directory-card"]').first()).toContainText(
+    "Starter plans from ~$20/mo",
+  );
 
   await page.getByRole("searchbox", { name: "Search tools" }).fill("n8n");
   await expect(page.getByRole("heading", { level: 3, name: "n8n" })).toBeVisible();

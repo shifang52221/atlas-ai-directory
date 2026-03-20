@@ -33,6 +33,20 @@ export default function HomepageClient({ data }: HomepageClientProps) {
       href: "/best-ai-tools-for-marketing",
     },
   ];
+  const commercialGuides = [
+    {
+      label: "Best AI Automation Tools for Small Business",
+      href: "/best-ai-automation-tools-for-small-business",
+    },
+    {
+      label: "Make Alternatives",
+      href: "/make-alternatives",
+    },
+    {
+      label: "monday vs ClickUp for Ops Teams",
+      href: "/monday-vs-clickup-for-ops",
+    },
+  ];
 
   const reveal = (delay: string): CSSProperties =>
     ({ "--reveal-delay": delay }) as CSSProperties;
@@ -95,19 +109,19 @@ export default function HomepageClient({ data }: HomepageClientProps) {
           <p>Today&apos;s channels</p>
           <div className={styles.megaNavTrack}>
             <Link className={styles.megaNavItem} href="/tools">
-              New AI tools
+              Browse all tools
             </Link>
             <Link className={styles.megaNavItem} href="/tools">
-              Most used this month
+              See popular tools
             </Link>
             <Link className={styles.megaNavItem} href="/compare">
-              Top by category
+              Compare categories
             </Link>
             <Link className={styles.megaNavItem} href="/use-cases">
-              Browse by use case
+              Explore use cases
             </Link>
             <Link className={styles.megaNavItem} href="/workflows">
-              Workflow templates
+              Open workflow templates
             </Link>
           </div>
         </section>
@@ -135,8 +149,8 @@ export default function HomepageClient({ data }: HomepageClientProps) {
           <div className={styles.heroRing} data-motion="hero-ring" aria-hidden />
           <div className={styles.heroGrid}>
             <div className={styles.heroMain}>
-              <div className={styles.heroBadge}>English AI Tool Navigation</div>
-              <h1>AI Agents Decision Hub</h1>
+              <div className={styles.heroBadge}>AI Agents Decision Hub</div>
+              <h1>Atlas AI Directory</h1>
               <p className={styles.subtitle}>
                 High-signal AI navigation for operators. Search by use case,
                 compare tools, and move from discovery to deployment quickly.
@@ -377,9 +391,9 @@ export default function HomepageClient({ data }: HomepageClientProps) {
               ))}
             </ul>
             <div className={styles.compareStack}>
-              {data.topThisWeek.slice(0, 3).map((item) => (
-                <Link className={styles.compareCard} href="/compare" key={item}>
-                  {item}
+              {commercialGuides.map((item) => (
+                <Link className={styles.compareCard} href={item.href} key={item.href}>
+                  {item.label}
                 </Link>
               ))}
             </div>

@@ -23,4 +23,19 @@ describe("use-case data", () => {
     expect(profile?.faqItems.length).toBeGreaterThanOrEqual(4);
     expect(profile?.tools[0]?.outboundHref).toContain("/api/outbound?");
   });
+
+  it("keeps use-case tool blurbs free of placeholder phrasing", async () => {
+    const profile = await getUseCaseProfileBySlug("support-automation");
+
+    expect(profile).not.toBeNull();
+    expect(profile?.tools.length).toBeGreaterThan(0);
+
+    for (const tool of profile?.tools || []) {
+      const blurb = tool.blurb.toLowerCase();
+      expect(blurb).not.toContain("available shortly");
+      expect(blurb).not.toContain("being expanded");
+      expect(blurb).not.toContain("profile details");
+      expect(blurb.trim().length).toBeGreaterThan(20);
+    }
+  });
 });

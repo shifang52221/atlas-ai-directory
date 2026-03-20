@@ -187,7 +187,7 @@ export async function getHomepageData(): Promise<HomepageData> {
         tag: tool.tagline || "AI Tool",
         blurb:
           tool.description?.slice(0, 120) ||
-          "Profile details will be available shortly.",
+          "Operator-focused profile with setup context, pricing direction, and best-fit workflow notes.",
         href: `/tools/${tool.slug}`,
         filters:
           detectedFilters.length > 0 ? detectedFilters : ["Automation", "No-Code"],

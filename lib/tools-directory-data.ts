@@ -65,8 +65,8 @@ const fallbackTools: DirectoryTool[] = fallbackToolOrder
       filters: tool.categories,
       popularity: 100 - index * 4,
       updatedAt: tool.updatedAt,
-      pricingLabel: "Pricing on vendor page",
-      setupLabel: "Setup varies by team workflow",
+      pricingLabel: tool.pricingLabel,
+      setupLabel: tool.setupLabel,
     };
   })
   .filter((tool): tool is DirectoryTool => Boolean(tool));
@@ -137,10 +137,10 @@ export async function getToolsDirectoryData(): Promise<ToolsDirectoryData> {
       const pricingLabel =
         tool.pricingFrom !== null
           ? `From ${tool.currency} ${tool.pricingFrom.toString()}`
-          : "Pricing on vendor page";
+          : "See vendor pricing for current plans";
       const setupLabel = tool.setupMinutes
         ? `~${tool.setupMinutes} min setup`
-        : "Setup varies by team workflow";
+        : "Setup depends on workflow depth and integrations";
 
       return {
         slug: tool.slug,
@@ -148,7 +148,7 @@ export async function getToolsDirectoryData(): Promise<ToolsDirectoryData> {
         tag: tool.tagline || "AI Tool",
         blurb:
           tool.description?.slice(0, 200) ||
-          "Profile details are being expanded with benchmark data.",
+          "Operator-focused profile with setup guidance, pricing context, and fit notes.",
         href: `/tools/${tool.slug}`,
         outboundHref: buildOutboundHref({
           toolSlug: tool.slug,

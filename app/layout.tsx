@@ -15,9 +15,9 @@ const headingFont = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "AI Agents Decision Hub",
+  title: "Atlas AI Directory | AI Agents Decision Hub",
   description:
-    "Scenario-driven comparison site for AI agents and automation tools.",
+    "Atlas AI Directory is an AI agents decision hub for comparing automation tools, use cases, and operator-ready buying guides.",
 };
 
 export default function RootLayout({
