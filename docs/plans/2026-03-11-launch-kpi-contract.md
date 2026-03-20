@@ -111,3 +111,37 @@ No-Go if any:
 - Engineering: Pending
 - SEO/Content: Pending
 - Monetization/Ops: Pending
+
+---
+
+## Appendix A: Page-Level Revenue KPI Contract (Commercial Sprint)
+
+Date added:
+- 2026-03-12
+
+Scope:
+- 12-page commercial intent sprint (`best`, `alternatives`, `vs`, `use-case`).
+
+KPIs:
+
+1. Page-level outbound CTR (median):
+- Definition: outbound clicks / page impressions.
+- Target: >= 15% median across commercial pages.
+
+2. Click-to-conversion rate (where conversion backfill exists):
+- Definition: conversions / outbound clicks.
+- Target: >= 1.5% median across top-traffic commercial pages.
+
+3. EPC (earnings per click):
+- Definition: attributed earnings / outbound clicks.
+- Target: >= $1.00 on top quartile commercial pages.
+
+4. Revenue concentration control:
+- Definition: share of total affiliate revenue from top 3 pages.
+- Target: <= 70% (to reduce single-page dependency risk).
+
+Execution cadence:
+
+1. Weekly page ranking by CTR, EPC, conversions.
+2. Promote top quartile pages in internal links.
+3. Rewrite or demote bottom quartile pages after 2 consecutive weeks below thresholds.

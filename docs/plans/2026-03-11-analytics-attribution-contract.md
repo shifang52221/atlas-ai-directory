@@ -49,7 +49,10 @@ All monetization events must keep the following fields consistent:
 - `tool_profile_primary`
 - `tools_directory_list`
 - `use_case_recommendation`
-- `editorial_hub_recommendation`
+- `editorial_hub_hero_cta`
+- `editorial_hub_table_cta`
+- `editorial_hub_alternative_cta`
+- `editorial_hub_recommendation` (legacy alias -> `editorial_hub_hero_cta`)
 - `hub_hero` (hub impression default)
 
 ## Dashboard Slices Enabled

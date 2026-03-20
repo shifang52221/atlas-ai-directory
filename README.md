@@ -1,6 +1,6 @@
-# AI Agents Decision Hub (English Vertical Site)
+# Atlas AI Directory
 
-Affiliate-first English site for AI agents and automation tool decisions.
+Affiliate-first English AI tool directory and decision hub for operators comparing automation tools, use cases, and buying guides.
 
 ## Tech Stack
 
@@ -65,6 +65,27 @@ npm run audit:affiliate
 - Master launch plan: `docs/plans/2026-03-11-global-launch-master-plan.md`
 - Target code freeze: `2026-03-25`
 - Target public launch: `2026-04-01`
+
+## Commercial Operations
+
+- Affiliate program control sheet: `docs/plans/2026-03-12-affiliate-program-control-sheet.md`
+- Commercial sprint plan (14-day): `docs/plans/2026-03-12-ai-navigation-affiliate-growth-sprint-plan.md`
+- Commercial intent page map: `docs/plans/2026-03-12-commercial-intent-page-map.md`
+- Commercial sprint verification log: `docs/plans/2026-03-12-commercial-sprint-verification-log.md`
+
+### Commercial Sprint Verification Checklist (2026-03-12)
+
+Run this pack before signing off commercial page releases:
+
+```bash
+npm run lint
+npm run build
+npm test
+npm run test:e2e
+```
+
+Store command timestamps + pass/fail outcomes in:
+`docs/plans/2026-03-12-commercial-sprint-verification-log.md`
 
 ## Current Routes
 
