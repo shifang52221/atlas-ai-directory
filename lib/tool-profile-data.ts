@@ -29,6 +29,15 @@ type BuildOutboundHrefInput = {
   placementId?: string;
 };
 
+export const COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS = {
+  HERO_CTA: "editorial_hub_hero_cta",
+  TABLE_CTA: "editorial_hub_table_cta",
+  ALTERNATIVE_CTA: "editorial_hub_alternative_cta",
+} as const;
+
+export type CommercialEditorialHubPlacementId =
+  (typeof COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS)[keyof typeof COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS];
+
 type FallbackToolProfileSeed = Omit<
   ToolProfile,
   "outboundHref" | "outboundDisclosure"
@@ -46,14 +55,16 @@ const fallbackProfilesSeed: FallbackToolProfileSeed[] = [
     websiteUrl: "https://zapier.com",
     categories: ["Automation", "No-Code", "Sales Ops"],
     highlights: [
-      "Fast trigger-action setup for non-technical teams",
-      "Strong integration catalog across CRM and support stacks",
-      "Reliable for recurring internal operations workflows",
+      "Fast trigger-action setup for non-technical teams launching cross-app workflows",
+      "Strong integration catalog across CRM, support, and internal operations stacks",
+      "Reliable fit for recurring operational handoffs with light engineering involvement",
+      "Useful default choice when rollout speed matters more than deep custom infrastructure control",
     ],
     comparisonNotes: [
-      "Best when you need broad app support quickly",
-      "Compare against Make for visual routing complexity",
-      "Compare against n8n for self-hosting control",
+      "Best when you need broad app coverage and a production pilot running in days, not weeks",
+      "Compare against Make when branching depth, visual debugging, and scenario transparency matter more than launch speed",
+      "Compare against n8n when self-hosting, ownership, and code-level extensibility are strategic requirements",
+      "Model task-volume growth early because pricing pressure usually appears after the first successful automation rollout",
     ],
     setupLabel: "~45 min to first workflow",
     pricingLabel: "Starter plans from ~$20/mo",
@@ -69,14 +80,16 @@ const fallbackProfilesSeed: FallbackToolProfileSeed[] = [
     websiteUrl: "https://www.make.com",
     categories: ["Automation", "No-Code", "Marketing"],
     highlights: [
-      "Advanced scenario logic and branching",
-      "Good fit for GTM ops and marketing automation",
-      "Useful when workflow transparency is required",
+      "Advanced scenario logic and branching for multi-step operational workflows",
+      "Good fit for GTM ops and marketing teams that need visible routing control",
+      "Useful when workflow transparency and module-level debugging are required",
+      "Stronger than lighter automation tools when process owners can maintain larger scenario graphs",
     ],
     comparisonNotes: [
-      "Best for visual process control",
-      "Can require more setup than Zapier for simple automations",
-      "Great middle ground before fully custom systems",
+      "Best for visual process control when operators need to inspect and tune branching logic directly",
+      "Can require more setup than Zapier AI for simple automations that do not need complex routing",
+      "Often the right middle ground before moving to fully custom orchestration or internal tooling",
+      "Ownership discipline matters because scenario sprawl can make maintenance noticeably heavier over time",
     ],
     setupLabel: "~60 min to first production scenario",
     pricingLabel: "Entry plans from ~$9/mo",
@@ -92,14 +105,16 @@ const fallbackProfilesSeed: FallbackToolProfileSeed[] = [
     websiteUrl: "https://www.lindy.ai",
     categories: ["AI Agents", "Customer Support"],
     highlights: [
-      "Agent-first experience built for operators",
-      "Useful for support and communication workflows",
-      "Strong practical templates for quick launch",
+      "Agent-first experience designed for operators who want fast task delegation",
+      "Useful for support, inbox, and communication-heavy coordination workflows",
+      "Strong practical templates for quick launch without extensive technical setup",
+      "Works best when SMB teams want autonomous assistance before adopting a broader automation stack",
     ],
     comparisonNotes: [
-      "Good when your team wants autonomous assistant behavior",
-      "Evaluate model quality and control depth per workflow",
-      "Compare with Relevance AI for broader workforce orchestration",
+      "Good when your team wants autonomous assistant behavior more than detailed workflow builder control",
+      "Evaluate model quality, escalation handling, and approval rules for each customer-facing workflow",
+      "Compare with Relevance AI when you need broader workforce orchestration across multiple team roles",
+      "Plan human-review checkpoints early because trust can drop fast if the first agent workflows overreach",
     ],
     setupLabel: "~40 min to first usable agent",
     pricingLabel: "Public pricing varies by usage",
@@ -115,14 +130,16 @@ const fallbackProfilesSeed: FallbackToolProfileSeed[] = [
     websiteUrl: "https://relevanceai.com",
     categories: ["AI Agents", "Automation", "Sales Ops"],
     highlights: [
-      "Role-based AI workforce framing",
-      "Template library for rapid deployment",
-      "Useful for cross-team operational workflows",
+      "Role-based AI workforce framing that maps well to multi-team operating models",
+      "Template library supports faster deployment for teams testing agent-led operations",
+      "Useful for cross-team workflows where handoffs and governance matter as much as automation",
+      "Better fit than lighter agent tools when leadership wants clear role boundaries and orchestration rules",
     ],
     comparisonNotes: [
-      "Strong option for multi-agent operational setups",
-      "Compare with Lindy for SMB simplicity",
-      "Compare with custom stack for strict control requirements",
+      "Strong option for multi-agent operational setups where role separation and workflow governance are central",
+      "Compare with Lindy when SMB simplicity and faster launch matter more than orchestration depth",
+      "Compare with a custom stack when strict infrastructure control or proprietary workflow logic is mandatory",
+      "Scope the first pilot carefully because broad agent ambitions can create unnecessary setup weight for small teams",
     ],
     setupLabel: "~70 min to first team-ready workflow",
     pricingLabel: "Plans vary by seats and usage",
@@ -138,14 +155,16 @@ const fallbackProfilesSeed: FallbackToolProfileSeed[] = [
     websiteUrl: "https://n8n.io",
     categories: ["Automation", "No-Code"],
     highlights: [
-      "Open-source and self-hosting friendly",
-      "Good for teams needing infrastructure control",
-      "Extensible with custom logic and community nodes",
+      "Open-source and self-hosting friendly for teams that want platform ownership",
+      "Good for organizations needing infrastructure control, auditability, and deployment flexibility",
+      "Extensible with custom logic, internal APIs, and community-maintained nodes",
+      "Often the most durable choice when technical teams expect automation complexity to grow over time",
     ],
     comparisonNotes: [
-      "Best for technical teams prioritizing ownership",
-      "Compare with Zapier/Make for managed convenience",
-      "Great fit for cost-sensitive scaling",
+      "Best for technical teams prioritizing ownership, extensibility, and operational control over convenience",
+      "Compare with Zapier AI and Make when managed convenience may outweigh infrastructure responsibility",
+      "Great fit for cost-sensitive scaling if your team can absorb the maintenance and upgrade burden",
+      "Decide hosted versus self-hosted early because support model and operational overhead change significantly",
     ],
     setupLabel: "~75 min for hosted, ~120 min for self-hosted",
     pricingLabel: "Cloud starts low; self-hosting can reduce spend",
@@ -161,14 +180,16 @@ const fallbackProfilesSeed: FallbackToolProfileSeed[] = [
     websiteUrl: "https://www.clay.com",
     categories: ["Sales Ops", "Marketing"],
     highlights: [
-      "Strong enrichment and outbound support",
-      "Good for signal-based prospect workflows",
-      "Useful for SDR and revops alignment",
+      "Strong enrichment and outbound support for teams running high-signal prospecting motions",
+      "Good for signal-based workflows where targeting quality drives sequence performance",
+      "Useful for SDR and RevOps alignment around data quality, prioritization, and routing",
+      "Especially effective when GTM teams need fast movement from research signals into outbound execution",
     ],
     comparisonNotes: [
-      "Best for growth and outbound execution teams",
-      "Compare with broader automation tools for non-GTM use cases",
-      "Pricing can scale with high enrichment volume",
+      "Best for growth and outbound execution teams where enrichment quality directly affects conversion outcomes",
+      "Compare with broader automation tools when your use case extends well beyond GTM and outbound operations",
+      "Pricing can scale quickly with high enrichment volume, so weekly usage review is usually necessary",
+      "Validate handoff from data enrichment to sequencing early because weak field governance can erase Clay's advantage",
     ],
     setupLabel: "~50 min to first outbound flow",
     pricingLabel: "Starter plans vary by credits and team size",
@@ -225,6 +246,29 @@ export function buildOutboundHref({
   }
 
   return `/api/outbound?${params.toString()}`;
+}
+
+export function buildCommercialEditorialHubOutboundHrefs(
+  input: Omit<BuildOutboundHrefInput, "placementId">,
+): {
+  heroOutboundHref: string;
+  tableOutboundHref: string;
+  alternativeOutboundHref: string;
+} {
+  return {
+    heroOutboundHref: buildOutboundHref({
+      ...input,
+      placementId: COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.HERO_CTA,
+    }),
+    tableOutboundHref: buildOutboundHref({
+      ...input,
+      placementId: COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.TABLE_CTA,
+    }),
+    alternativeOutboundHref: buildOutboundHref({
+      ...input,
+      placementId: COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.ALTERNATIVE_CTA,
+    }),
+  };
 }
 
 function mapFallbackProfile(seed: FallbackToolProfileSeed): ToolProfile {
@@ -313,7 +357,7 @@ export async function getToolProfileBySlug(
       tagline: tool.tagline || "AI Tool",
       description:
         tool.description ||
-        "This profile is being expanded with deeper benchmarks and setup guidance.",
+        "Operator-focused profile with practical setup notes, pricing context, and decision guidance.",
       websiteUrl: tool.websiteUrl,
       categories: categoryNames.length > 0 ? categoryNames : ["Automation"],
       highlights: [

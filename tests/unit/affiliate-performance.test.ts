@@ -22,6 +22,9 @@ import {
   replaceAffiliateManualMetricByIdFromLines,
   parseAffiliateManualMetricHistory,
   parseAffiliateManualMetricEntries,
+  normalizeCommercialPlacementId,
+  getPlacementLabel,
+  getMissingCommercialPlacementIds,
   type AffiliateToolPerformanceRow,
 } from "../../lib/affiliate-performance";
 
@@ -897,6 +900,82 @@ describe("affiliate performance manual metric parser", () => {
       { key: "UNSPECIFIED", label: "UNSPECIFIED", clicks: 7 },
       { key: "DE", label: "DE", clicks: 4 },
     ]);
+  });
+
+  it("normalizes commercial placement ids and returns readable labels", () => {
+    expect(normalizeCommercialPlacementId("editorial_hub_hero_cta")).toBe(
+      "editorial_hub_hero_cta",
+    );
+    expect(normalizeCommercialPlacementId("editorial_hub_recommendation")).toBe(
+      "editorial_hub_hero_cta",
+    );
+    expect(normalizeCommercialPlacementId("  ")).toBe("unspecified");
+
+    const rows = buildAttributionDimensionRows(
+      new Map([
+        [normalizeCommercialPlacementId("editorial_hub_hero_cta"), 18],
+        [normalizeCommercialPlacementId("editorial_hub_table_cta"), 12],
+        [normalizeCommercialPlacementId("editorial_hub_alternative_cta"), 7],
+      ]),
+      {
+        labelForKey: getPlacementLabel,
+      },
+    );
+
+    expect(rows).toEqual([
+      {
+        key: "editorial_hub_hero_cta",
+        label: "Editorial Hub Hero CTA",
+        clicks: 18,
+      },
+      {
+        key: "editorial_hub_table_cta",
+        label: "Editorial Hub Table CTA",
+        clicks: 12,
+      },
+      {
+        key: "editorial_hub_alternative_cta",
+        label: "Editorial Hub Alternative CTA",
+        clicks: 7,
+      },
+    ]);
+  });
+
+  it("reports missing commercial placement ids for outbound contract checks", () => {
+    expect(
+      getMissingCommercialPlacementIds([
+        {
+          key: "editorial_hub_hero_cta",
+          label: "Editorial Hub Hero CTA",
+          clicks: 9,
+        },
+        {
+          key: "editorial_hub_table_cta",
+          label: "Editorial Hub Table CTA",
+          clicks: 8,
+        },
+      ]),
+    ).toEqual(["editorial_hub_alternative_cta"]);
+
+    expect(
+      getMissingCommercialPlacementIds([
+        {
+          key: "editorial_hub_hero_cta",
+          label: "Editorial Hub Hero CTA",
+          clicks: 9,
+        },
+        {
+          key: "editorial_hub_table_cta",
+          label: "Editorial Hub Table CTA",
+          clicks: 8,
+        },
+        {
+          key: "editorial_hub_alternative_cta",
+          label: "Editorial Hub Alternative CTA",
+          clicks: 4,
+        },
+      ]),
+    ).toEqual([]);
   });
 
   it("builds hub variant summary from experiment rows", () => {

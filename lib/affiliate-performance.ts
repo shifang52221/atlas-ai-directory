@@ -3,7 +3,10 @@ import path from "path";
 import { EventType, ToolStatus } from "@prisma/client";
 import { getDb } from "./db";
 import { getEditorialHubConfig, getEditorialHubPaths } from "./editorial-hubs";
-import { getFallbackToolProfiles } from "./tool-profile-data";
+import {
+  COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS,
+  getFallbackToolProfiles,
+} from "./tool-profile-data";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -254,6 +257,48 @@ export type AffiliatePerformanceData = {
   rows: AffiliateToolPerformanceRow[];
 };
 
+export const COMMERCIAL_CTA_PLACEMENT_IDS = [
+  COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.HERO_CTA,
+  COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.TABLE_CTA,
+  COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.ALTERNATIVE_CTA,
+] as const;
+
+const PLACEMENT_ID_ALIASES: Record<string, string> = {
+  editorial_hub_recommendation: COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.HERO_CTA,
+};
+
+export function normalizeCommercialPlacementId(placementId: string): string {
+  const normalized = placementId.trim().toLowerCase();
+  if (!normalized) {
+    return "unspecified";
+  }
+  return PLACEMENT_ID_ALIASES[normalized] || normalized;
+}
+
+export function getPlacementLabel(placementId: string): string {
+  const normalized = normalizeCommercialPlacementId(placementId);
+  if (normalized === COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.HERO_CTA) {
+    return "Editorial Hub Hero CTA";
+  }
+  if (normalized === COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.TABLE_CTA) {
+    return "Editorial Hub Table CTA";
+  }
+  if (normalized === COMMERCIAL_EDITORIAL_HUB_PLACEMENT_IDS.ALTERNATIVE_CTA) {
+    return "Editorial Hub Alternative CTA";
+  }
+  if (normalized === "unspecified") {
+    return "Unspecified placement";
+  }
+  return normalized;
+}
+
+export function getMissingCommercialPlacementIds(
+  rows: AffiliateAttributionDimensionRow[],
+): string[] {
+  const seen = new Set(rows.map((row) => normalizeCommercialPlacementId(row.key)));
+  return COMMERCIAL_CTA_PLACEMENT_IDS.filter((placementId) => !seen.has(placementId));
+}
+
 function getAuditLogPath(): string {
   return path.join(process.cwd(), "dev.log");
 }
@@ -320,7 +365,7 @@ function parsePlacementFromMetadata(metadata: unknown): string {
   if (!raw) {
     return "unspecified";
   }
-  return raw;
+  return normalizeCommercialPlacementId(raw);
 }
 
 function parseCountryCodeFromMetadata(
@@ -2100,8 +2145,7 @@ export async function getAffiliatePerformanceData(options?: {
     const outboundByPlacement = buildAttributionDimensionRows(
       outboundByPlacementCount,
       {
-        labelForKey: (key) =>
-          key === "unspecified" ? "Unspecified placement" : key,
+        labelForKey: (key) => getPlacementLabel(key),
       },
     );
     const outboundByLinkKind = buildAttributionDimensionRows(

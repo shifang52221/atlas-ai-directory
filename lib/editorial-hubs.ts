@@ -1,5 +1,10 @@
 import { LinkKind } from "@prisma/client";
-import { buildOutboundHref, getFallbackToolProfiles } from "./tool-profile-data";
+import type { Metadata } from "next";
+import {
+  buildCommercialEditorialHubOutboundHrefs,
+  getFallbackToolProfiles,
+} from "./tool-profile-data";
+import { commercialPages } from "./commercial-pages";
 
 type HubRecommendation = {
   slug: string;
@@ -66,6 +71,9 @@ export type EditorialHubRankedTool = {
   tradeoff: string;
   evidence: string;
   outboundHref: string;
+  heroOutboundHref: string;
+  tableOutboundHref: string;
+  alternativeOutboundHref: string;
 };
 
 export type EditorialHubExperimentView = {
@@ -596,9 +604,10 @@ const editorialHubs: EditorialHubConfig[] = [
     },
   },
 ];
+const allEditorialHubs: EditorialHubConfig[] = [...editorialHubs, ...commercialPages];
 
 export function getEditorialHubConfig(path: string): EditorialHubConfig | null {
-  return editorialHubs.find((hub) => hub.path === path) ?? null;
+  return allEditorialHubs.find((hub) => hub.path === path) ?? null;
 }
 
 export function getEditorialHubConfigOrThrow(path: string): EditorialHubConfig {
@@ -611,7 +620,7 @@ export function getEditorialHubConfigOrThrow(path: string): EditorialHubConfig {
 }
 
 export function getEditorialHubPaths(): string[] {
-  return editorialHubs.map((hub) => hub.path);
+  return allEditorialHubs.map((hub) => hub.path);
 }
 
 export function parseEditorialHubVariant(input?: string | null): EditorialHubVariant {
@@ -619,6 +628,101 @@ export function parseEditorialHubVariant(input?: string | null): EditorialHubVar
     return "B";
   }
   return "A";
+}
+
+function toHubIntent(path: string): "BEST" | "ALTERNATIVES" | "VS" | "USE_CASE" {
+  if (path.includes("-alternatives")) {
+    return "ALTERNATIVES";
+  }
+  if (path.includes("-vs-")) {
+    return "VS";
+  }
+  if (path.startsWith("/best-")) {
+    return "BEST";
+  }
+  return "USE_CASE";
+}
+
+function toSeoTitle(config: EditorialHubConfig): string {
+  const intent = toHubIntent(config.path);
+  const yearBase = `${config.title} (2026)`;
+
+  let hint = "";
+  if (intent === "ALTERNATIVES") {
+    hint = "Better Options";
+  } else if (intent === "VS") {
+    hint = "Which Tool Wins?";
+  } else if (intent === "BEST") {
+    hint = "Reviews & Pricing";
+  } else {
+    hint = "Buyer Guide";
+  }
+
+  const withHint = `${yearBase} | ${hint}`;
+  const core = withHint.length <= 64 ? withHint : yearBase;
+
+  return `${core} | Atlas AI Directory`;
+}
+
+function trimToLength(input: string, maxChars: number): string {
+  if (input.length <= maxChars) {
+    return input;
+  }
+  const sliced = input.slice(0, maxChars).trim();
+  return sliced.replace(/[.,;:\-!?\s]+$/g, "").trim();
+}
+
+function toSeoDescription(config: EditorialHubConfig): string {
+  const intent = toHubIntent(config.path);
+  const base = config.metadataDescription.trim().replace(/\s+/g, " ");
+
+  let suffix = "Compare pricing, setup speed, and trade-offs before you choose.";
+  if (intent === "ALTERNATIVES") {
+    suffix = "Compare alternatives, migration effort, pricing, and trade-offs before switching.";
+  } else if (intent === "VS") {
+    suffix = "Compare both tools side by side on pricing, rollout speed, and operational fit.";
+  } else if (intent === "USE_CASE") {
+    suffix = "Find the best-fit tools by use case, rollout time, and budget constraints.";
+  }
+
+  const merged = `${base} ${suffix}`.replace(/\s+/g, " ").trim();
+  return trimToLength(merged, 160);
+}
+
+export function buildEditorialHubMetadata(
+  config: EditorialHubConfig,
+  options?: {
+    baseUrl?: string;
+  },
+): Metadata {
+  const resolvedBaseUrl =
+    options?.baseUrl?.trim() ||
+    process.env.APP_BASE_URL ||
+    "http://localhost:3000";
+  const canonicalUrl = new URL(config.path, resolvedBaseUrl).toString();
+  const title = toSeoTitle(config);
+  const description = toSeoDescription(config);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: "article",
+      siteName: "Atlas AI Directory",
+      locale: "en_US",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
 }
 
 function applyRecommendationOrder(
@@ -662,6 +766,13 @@ export function buildEditorialHubRankedTools(
       if (!tool) {
         return null;
       }
+      const outboundHrefs = buildCommercialEditorialHubOutboundHrefs({
+        toolSlug: tool.slug,
+        targetUrl: tool.websiteUrl,
+        linkKind: LinkKind.DIRECT,
+        sourcePath: config.path,
+        experimentVariant: variant,
+      });
 
       return {
         slug: tool.slug,
@@ -675,14 +786,10 @@ export function buildEditorialHubRankedTools(
         bestFor: recommendation.bestFor,
         tradeoff: recommendation.tradeoff,
         evidence: recommendation.evidence,
-        outboundHref: buildOutboundHref({
-          toolSlug: tool.slug,
-          targetUrl: tool.websiteUrl,
-          linkKind: LinkKind.DIRECT,
-          sourcePath: config.path,
-          experimentVariant: variant,
-          placementId: "editorial_hub_recommendation",
-        }),
+        outboundHref: outboundHrefs.heroOutboundHref,
+        heroOutboundHref: outboundHrefs.heroOutboundHref,
+        tableOutboundHref: outboundHrefs.tableOutboundHref,
+        alternativeOutboundHref: outboundHrefs.alternativeOutboundHref,
       };
     })
     .filter((tool): tool is EditorialHubRankedTool => Boolean(tool));

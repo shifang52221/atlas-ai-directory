@@ -67,4 +67,53 @@ describe("tool profile data", () => {
       expect(isValid).toBe(true);
     }
   });
+
+  it("keeps fallback profile copy free of placeholder phrasing", () => {
+    const profiles = getFallbackToolProfiles();
+    expect(profiles.length).toBeGreaterThan(0);
+
+    for (const profile of profiles) {
+      const combinedCopy = [
+        profile.description,
+        profile.setupLabel,
+        profile.pricingLabel,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      expect(combinedCopy).not.toContain("available shortly");
+      expect(combinedCopy).not.toContain("being expanded");
+      expect(combinedCopy).not.toContain("setup varies by team workflow");
+      expect(combinedCopy).not.toContain("pricing on vendor page");
+    }
+  });
+
+  it("keeps the six core tool profiles decision-dense for launch", () => {
+    const coreSlugs = [
+      "zapier-ai",
+      "make",
+      "n8n",
+      "clay",
+      "relevance-ai",
+      "lindy",
+    ];
+    const profiles = getFallbackToolProfiles().filter((profile) =>
+      coreSlugs.includes(profile.slug),
+    );
+
+    expect(profiles).toHaveLength(coreSlugs.length);
+
+    for (const profile of profiles) {
+      expect(profile.highlights.length).toBeGreaterThanOrEqual(4);
+      expect(profile.comparisonNotes.length).toBeGreaterThanOrEqual(4);
+
+      for (const highlight of profile.highlights) {
+        expect(highlight.length).toBeGreaterThan(24);
+      }
+
+      for (const note of profile.comparisonNotes) {
+        expect(note.length).toBeGreaterThan(35);
+      }
+    }
+  });
 });

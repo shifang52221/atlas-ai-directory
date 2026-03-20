@@ -3,6 +3,8 @@ import { HubImpressionTracker } from "./hub-impression-tracker";
 import { SiteFooter } from "./site-footer";
 import {
   buildEditorialHubExperimentView,
+  getEditorialHubConfig,
+  getEditorialHubPaths,
   type EditorialHubConfig,
   type EditorialHubVariant,
 } from "@/lib/editorial-hubs";
@@ -19,6 +21,38 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
   const view = buildEditorialHubExperimentView({ config, variant });
   const rankedTools = view.rankedTools;
   const primaryTools = view.primaryTools;
+  const alternativeTools = rankedTools.slice(primaryTools.length);
+  const relatedCommercialGuides = getEditorialHubPaths()
+    .filter((path) => path !== config.path)
+    .map((path) => getEditorialHubConfig(path))
+    .filter((hub): hub is EditorialHubConfig => Boolean(hub))
+    .slice(0, 8)
+    .map((hub) => ({
+      href: hub.path,
+      label: hub.title,
+    }));
+  const sectionLinks = [
+    { href: "#top-picks", label: "Top picks" },
+    ...(alternativeTools.length > 0
+      ? [{ href: "#alternative-picks", label: "Alternative picks" }]
+      : []),
+    { href: "#who-this-fits", label: "Who this fits" },
+    { href: "#implementation-playbook", label: "Implementation playbook" },
+    { href: "#comparison-table", label: "Comparison table" },
+    { href: "#faq", label: "FAQ" },
+  ];
+  const softwareApplications = rankedTools.map((tool) => {
+    const toolUrl = new URL(`/tools/${tool.slug}`, baseUrl).toString();
+    return {
+      "@type": "SoftwareApplication",
+      "@id": `${toolUrl}#software`,
+      name: tool.name,
+      url: toolUrl,
+      description: tool.description,
+      applicationCategory: tool.categories[0] || "BusinessApplication",
+      operatingSystem: "Web",
+    };
+  });
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -28,6 +62,11 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
         name: config.title,
         description: config.metadataDescription,
         url: canonicalUrl,
+        mainEntityOfPage: canonicalUrl,
+        inLanguage: "en-US",
+        about: softwareApplications.map((item) => ({
+          "@id": item["@id"],
+        })),
         isPartOf: {
           "@type": "WebSite",
           name: "Atlas AI Directory",
@@ -41,9 +80,12 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           "@type": "ListItem",
           position: index + 1,
           name: tool.name,
-          url: new URL(`/tools/${tool.slug}`, baseUrl).toString(),
+          item: {
+            "@id": new URL(`/tools/${tool.slug}#software`, baseUrl).toString(),
+          },
         })),
       },
+      ...softwareApplications,
       {
         "@type": "FAQPage",
         mainEntity: [...config.faqItems, ...config.comparisonQuestions].map((item) => ({
@@ -99,6 +141,14 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </Link>
         </header>
 
+        <nav className={styles.breadcrumbTrail} aria-label="Hub breadcrumbs">
+          <Link href="/">Home</Link>
+          <span className={styles.crumbSep}>/</span>
+          <Link href="/tools">Commercial guides</Link>
+          <span className={styles.crumbSep}>/</span>
+          <span>{config.title}</span>
+        </nav>
+
         <section className={styles.hero}>
           <p className={styles.kicker}>Commercial intent hub</p>
           <h1>{config.title}</h1>
@@ -110,7 +160,18 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </div>
         </section>
 
-        <section className={styles.section}>
+        <nav className={styles.toc} aria-label="On this page">
+          <p>On this page</p>
+          <div className={styles.tocLinks}>
+            {sectionLinks.map((item) => (
+              <a key={item.href} href={item.href}>
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <section id="top-picks" className={styles.section}>
           <h2>Top picks</h2>
           <div className={styles.topPicksGrid}>
             {primaryTools.map((tool, index) => (
@@ -130,7 +191,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
                   <p>{tool.pricingLabel}</p>
                 </div>
                 <div className={styles.pickActions}>
-                  <a href={tool.outboundHref} rel="nofollow sponsored" target="_blank">
+                  <a href={tool.heroOutboundHref} rel="nofollow sponsored" target="_blank">
                     {view.ctaPrimaryLabel} {tool.name}
                   </a>
                   <Link href={`/tools/${tool.slug}`}>{view.ctaSecondaryLabel}</Link>
@@ -140,7 +201,43 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </div>
         </section>
 
-        <section className={styles.section}>
+        {alternativeTools.length > 0 ? (
+          <section id="alternative-picks" className={styles.section}>
+            <h2>Alternative picks worth testing</h2>
+            <div className={styles.topPicksGrid}>
+              {alternativeTools.map((tool, index) => (
+                <article key={`alternative-${tool.slug}`} className={styles.pickCard}>
+                  <p className={styles.rank}>#{primaryTools.length + index + 1}</p>
+                  <h3>{tool.name}</h3>
+                  <p className={styles.tagline}>{tool.tagline}</p>
+                  <p className={styles.summary}>{tool.description}</p>
+                  <p className={styles.evidence}>{tool.evidence}</p>
+                  <div className={styles.badges}>
+                    {tool.categories.map((category) => (
+                      <span key={`alternative-${tool.slug}-${category}`}>{category}</span>
+                    ))}
+                  </div>
+                  <div className={styles.pickMeta}>
+                    <p>{tool.setupLabel}</p>
+                    <p>{tool.pricingLabel}</p>
+                  </div>
+                  <div className={styles.pickActions}>
+                    <a
+                      href={tool.alternativeOutboundHref}
+                      rel="nofollow sponsored"
+                      target="_blank"
+                    >
+                      {view.ctaPrimaryLabel} {tool.name}
+                    </a>
+                    <Link href={`/tools/${tool.slug}`}>{view.ctaSecondaryLabel}</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section id="who-this-fits" className={styles.section}>
           <h2>Who this shortlist fits</h2>
           <ul className={styles.list}>
             {config.whoFits.map((item) => (
@@ -149,7 +246,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </ul>
         </section>
 
-        <section className={styles.section}>
+        <section id="avoid-this-shortlist" className={styles.section}>
           <h2>Avoid this shortlist if</h2>
           <ul className={styles.list}>
             {config.avoidIf.map((item) => (
@@ -158,7 +255,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </ul>
         </section>
 
-        <section className={styles.section}>
+        <section id="implementation-playbook" className={styles.section}>
           <h2>Implementation playbook</h2>
           <ol className={styles.list}>
             {config.implementationPlan.map((item) => (
@@ -167,7 +264,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </ol>
         </section>
 
-        <section className={styles.section}>
+        <section id="kpi-scorecard" className={styles.section}>
           <h2>KPI scorecard</h2>
           <ul className={styles.list}>
             {config.kpiScorecard.map((item) => (
@@ -176,7 +273,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </ul>
         </section>
 
-        <section className={styles.section}>
+        <section id="comparison-questions" className={styles.section}>
           <h2>Comparison questions</h2>
           <div className={styles.faqList}>
             {config.comparisonQuestions.map((item) => (
@@ -188,7 +285,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section id="evidence-review-basis" className={styles.section}>
           <h2>Evidence and review basis</h2>
           <ul className={styles.evidenceList}>
             {rankedTools.map((tool) => (
@@ -206,7 +303,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </p>
         </section>
 
-        <section className={styles.section}>
+        <section id="comparison-table" className={styles.section}>
           <h2>Comparison table</h2>
           <div className={styles.tableWrap}>
             <table>
@@ -234,7 +331,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
                     <td>{tool.tradeoff}</td>
                     <td>
                       <div className={styles.tableActions}>
-                        <a href={tool.outboundHref} rel="nofollow sponsored" target="_blank">
+                        <a href={tool.tableOutboundHref} rel="nofollow sponsored" target="_blank">
                           {view.tableCtaLabel}
                         </a>
                         <Link href={`/tools/${tool.slug}`}>Profile</Link>
@@ -253,7 +350,7 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </p>
         </section>
 
-        <section className={styles.section}>
+        <section id="faq" className={styles.section}>
           <h2>FAQ</h2>
           <div className={styles.faqList}>
             {config.faqItems.map((item) => (
@@ -265,11 +362,22 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section id="continue-shortlist" className={styles.section}>
           <h2>Continue your shortlist</h2>
           <div className={styles.links}>
             {config.continueLinks.map((item) => (
               <Link key={item.href} href={item.href}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.section} data-ui="related-commercial-guides">
+          <h2>Related commercial guides</h2>
+          <div className={styles.links}>
+            {relatedCommercialGuides.map((item) => (
+              <Link key={`related-guide-${item.href}`} href={item.href}>
                 {item.label}
               </Link>
             ))}

@@ -5,9 +5,11 @@ test("homepage includes canonical, Organization, WebSite and SearchAction schema
 }) => {
   await page.goto("/");
 
+  await expect(page).toHaveTitle(/Atlas AI Directory/i);
   await expect(
-    page.getByRole("heading", { level: 1, name: "AI Agents Decision Hub" }),
+    page.getByRole("heading", { level: 1, name: "Atlas AI Directory" }),
   ).toBeVisible();
+  await expect(page.getByText("AI Agents Decision Hub")).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     /http:\/\/localhost:3000\/?$/,
@@ -21,6 +23,7 @@ test("homepage includes canonical, Organization, WebSite and SearchAction schema
   expect(schemaJson).toContain('"@type":"Organization"');
   expect(schemaJson).toContain('"@type":"WebSite"');
   expect(schemaJson).toContain('"@type":"SearchAction"');
+  expect(schemaJson).toContain('"name":"Atlas AI Directory"');
   expect(schemaJson).toContain(
     '"target":"http://localhost:3000/tools?search={search_term_string}"',
   );
@@ -134,4 +137,48 @@ test("workflows page includes canonical and CollectionPage schema", async ({
   expect(schemaJson).toContain('"@type":"CollectionPage"');
   expect(schemaJson).toContain('"name":"AI Workflow Templates"');
   expect(schemaJson).toContain('"@type":"BreadcrumbList"');
+});
+
+test("commercial alternatives page includes canonical and CollectionPage schema", async ({
+  page,
+}) => {
+  await page.goto("/make-alternatives");
+
+  await expect(page).toHaveTitle(/Make Alternatives \(2026\)/i);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Make Alternatives" }),
+  ).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /http:\/\/localhost:3000\/make-alternatives\/?$/,
+  );
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    /Make Alternatives/i,
+  );
+  await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
+    "content",
+    /alternatives/i,
+  );
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+    "content",
+    /http:\/\/localhost:3000\/make-alternatives\/?$/,
+  );
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    "content",
+    "summary",
+  );
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+    "content",
+    /Make Alternatives/i,
+  );
+
+  const schemaJson = await page
+    .locator('script[type="application/ld+json"]')
+    .allTextContents()
+    .then((chunks) => chunks.join(" "));
+
+  expect(schemaJson).toContain('"@type":"CollectionPage"');
+  expect(schemaJson).toContain('"@type":"ItemList"');
+  expect(schemaJson).toContain('"@type":"FAQPage"');
 });
