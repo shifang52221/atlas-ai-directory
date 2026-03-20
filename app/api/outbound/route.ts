@@ -110,7 +110,9 @@ async function isAllowlistedOutboundTarget(input: {
     });
 
     if (tool) {
-      addAllowlistedTargetVariants(allowlistedTargets, tool.websiteUrl);
+      if (!input.affiliateLinkId) {
+        addAllowlistedTargetVariants(allowlistedTargets, tool.websiteUrl);
+      }
 
       const links = input.affiliateLinkId
         ? tool.affiliateLinks.filter((link) => link.id === input.affiliateLinkId)

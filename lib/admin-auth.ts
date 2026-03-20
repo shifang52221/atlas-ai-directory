@@ -125,6 +125,9 @@ export function isAdminAuthConfigSecureForProduction(
   if (!loginEmail || !loginEmail.includes("@")) {
     return false;
   }
+  if (loginEmail === nonProdDefaultAdminEmail) {
+    return false;
+  }
   if (password.length < 20 || isPlaceholderValue(password)) {
     return false;
   }
