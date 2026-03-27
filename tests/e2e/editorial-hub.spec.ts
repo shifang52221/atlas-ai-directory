@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+﻿import { expect, test } from "@playwright/test";
 
 const hubs = [
   {
@@ -67,6 +67,12 @@ for (const hub of hubs) {
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { level: 2, name: "KPI scorecard" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Buying mistakes to avoid" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: "90-day rollout checklist" }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { level: 2, name: "Comparison questions" }),
@@ -207,3 +213,4 @@ test("editorial hub assigns sticky variant cookie across hub pages", async ({
     firstVariant,
   );
 });
+

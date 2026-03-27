@@ -1,4 +1,4 @@
-import type { EditorialHubConfig } from "./editorial-hubs";
+﻿import type { EditorialHubConfig } from "./editorial-hubs";
 
 type CommercialPageSeed = {
   path: string;
@@ -56,6 +56,19 @@ function buildCommercialPageConfig(seed: CommercialPageSeed): EditorialHubConfig
       "Time to first production-ready workflow",
       "Outbound CTR and click-to-conversion rate by page module",
       "Cost-per-successful workflow execution at expected monthly volume",
+    ],
+    buyingMistakes: [
+      "Choosing based on headline pricing alone instead of validating cost at realistic monthly usage.",
+      "Skipping owner assignment and rollout checkpoints because the shortlist looks straightforward.",
+      "Comparing too many vendors at once without a fixed pilot workflow and scorecard.",
+    ],
+    rolloutChecklist: [
+      "Days 1-15: define buying criteria, current pain points, and minimum success thresholds.",
+      "Days 16-30: run a controlled pilot with the top candidates on one real workflow.",
+      "Days 31-45: measure setup effort, reliability, and operator confidence under live conditions.",
+      "Days 46-60: compare spend, adoption, and quality side by side before narrowing the shortlist.",
+      "Days 61-75: document the winning workflow, permissions, and fallback process.",
+      "Days 76-90: expand usage only after the selected tool holds up against cost and quality targets.",
     ],
     comparisonQuestions: [
       {
@@ -234,3 +247,4 @@ const commercialPageSeeds: CommercialPageSeed[] = [
 export const commercialPages: EditorialHubConfig[] = commercialPageSeeds.map(
   buildCommercialPageConfig,
 );
+

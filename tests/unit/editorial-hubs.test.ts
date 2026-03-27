@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import {
   buildEditorialHubMetadata,
   buildEditorialHubExperimentView,
@@ -76,7 +76,15 @@ describe("editorial hub experiments", () => {
       expect(config.avoidIf.length).toBeGreaterThanOrEqual(2);
       expect(config.implementationPlan.length).toBeGreaterThanOrEqual(4);
       expect(config.kpiScorecard.length).toBeGreaterThanOrEqual(3);
+      expect(config.buyingMistakes.length).toBeGreaterThanOrEqual(3);
+      expect(config.rolloutChecklist.length).toBeGreaterThanOrEqual(6);
       expect(config.comparisonQuestions.length).toBeGreaterThanOrEqual(3);
+      for (const item of config.buyingMistakes) {
+        expect(item.length).toBeGreaterThan(24);
+      }
+      for (const item of config.rolloutChecklist) {
+        expect(item.length).toBeGreaterThan(20);
+      }
       for (const item of config.comparisonQuestions) {
         expect(item.question).toMatch(/\bvs\b/i);
         expect(item.answer.length).toBeGreaterThan(30);
@@ -167,3 +175,4 @@ describe("editorial hub experiments", () => {
     ]);
   });
 });
+

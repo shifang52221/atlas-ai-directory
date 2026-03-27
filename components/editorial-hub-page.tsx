@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { HubImpressionTracker } from "./hub-impression-tracker";
 import { SiteFooter } from "./site-footer";
 import {
@@ -38,6 +38,8 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
       : []),
     { href: "#who-this-fits", label: "Who this fits" },
     { href: "#implementation-playbook", label: "Implementation playbook" },
+    { href: "#buying-mistakes", label: "Buying mistakes" },
+    { href: "#rollout-checklist", label: "90-day checklist" },
     { href: "#comparison-table", label: "Comparison table" },
     { href: "#faq", label: "FAQ" },
   ];
@@ -273,6 +275,24 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
           </ul>
         </section>
 
+        <section id="buying-mistakes" className={styles.section}>
+          <h2>Buying mistakes to avoid</h2>
+          <ul className={styles.list}>
+            {config.buyingMistakes.map((item) => (
+              <li key={`mistake-${item}`}>{item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section id="rollout-checklist" className={styles.section}>
+          <h2>90-day rollout checklist</h2>
+          <ol className={styles.list}>
+            {config.rolloutChecklist.map((item) => (
+              <li key={`rollout-${item}`}>{item}</li>
+            ))}
+          </ol>
+        </section>
+
         <section id="comparison-questions" className={styles.section}>
           <h2>Comparison questions</h2>
           <div className={styles.faqList}>
@@ -389,3 +409,4 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
     </main>
   );
 }
+

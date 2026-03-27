@@ -1,4 +1,4 @@
-import { LinkKind } from "@prisma/client";
+﻿import { LinkKind } from "@prisma/client";
 import type { Metadata } from "next";
 import {
   buildCommercialEditorialHubOutboundHrefs,
@@ -49,6 +49,8 @@ export type EditorialHubConfig = {
   avoidIf: string[];
   implementationPlan: string[];
   kpiScorecard: string[];
+  buyingMistakes: string[];
+  rolloutChecklist: string[];
   comparisonQuestions: HubComparisonQuestion[];
   recommendations: HubRecommendation[];
   faqItems: HubFaqItem[];
@@ -114,6 +116,19 @@ const editorialHubs: EditorialHubConfig[] = [
       "Workflow success rate by category after first 14 days",
       "Mean setup time to first production-ready automation",
       "Monthly automation cost per completed workflow run",
+    ],
+    buyingMistakes: [
+      "Choosing the cheapest starter plan before modeling real workflow volume and exception rates.",
+      "Letting teams publish automations without naming standards, owner mapping, and rollback rules.",
+      "Benchmarking feature lists instead of testing live reliability on the two workflows that matter most.",
+    ],
+    rolloutChecklist: [
+      "Days 1-15: baseline your current workflow volume, turnaround time, and failure patterns.",
+      "Days 16-30: pilot the top two shortlisted tools on one production-safe workflow each.",
+      "Days 31-45: add alerting, retry logic, and owner escalation before scaling any workflow.",
+      "Days 46-60: compare cost-per-successful run and operator maintenance burden side by side.",
+      "Days 61-75: freeze naming, permissions, and QA standards for every approved automation.",
+      "Days 76-90: expand to adjacent workflows only after reliability and cost targets stay green.",
     ],
     comparisonQuestions: [
       {
@@ -244,6 +259,19 @@ const editorialHubs: EditorialHubConfig[] = [
       "Meeting-booked conversion from first-touch sequences",
       "Lead-to-opportunity conversion within 30 days",
     ],
+    buyingMistakes: [
+      "Rolling out agent tooling before locking ICP, field definitions, and lead ownership rules.",
+      "Optimizing for outbound volume first and discovering too late that meeting quality is weak.",
+      "Adding too many enrichment and orchestration vendors at once, which makes diagnosis slow and noisy.",
+    ],
+    rolloutChecklist: [
+      "Days 1-15: define ICP tiers, routing logic, and the minimum enrichment schema required.",
+      "Days 16-30: run one outbound pilot with strict QA on data quality and message handoff.",
+      "Days 31-45: instrument reply quality, meeting-booked rate, and CRM sync accuracy.",
+      "Days 46-60: compare top tools by conversion lift, rep effort saved, and spend per segment.",
+      "Days 61-75: standardize naming, permissions, and fallback rules for failed workflows.",
+      "Days 76-90: scale only the plays that keep conversion quality and operational reliability stable.",
+    ],
     comparisonQuestions: [
       {
         question: "Clay vs Relevance AI: which is stronger for sales execution?",
@@ -373,6 +401,19 @@ const editorialHubs: EditorialHubConfig[] = [
       "Resolution time and reopened-ticket rate",
       "Escalation accuracy for AI-assisted routing",
     ],
+    buyingMistakes: [
+      "Automating high-risk ticket categories before your escalation policies and review gates are clear.",
+      "Using AI drafting without tracking reopen rate, customer sentiment, and confidence thresholds together.",
+      "Treating support automation as a pure speed project and underinvesting in QA and fallback design.",
+    ],
+    rolloutChecklist: [
+      "Days 1-15: audit top ticket intents and define low-risk queues for automation first.",
+      "Days 16-30: launch triage automation with mandatory fallback for edge cases and low confidence.",
+      "Days 31-45: track response quality, reopen rate, and escalation accuracy by queue.",
+      "Days 46-60: benchmark the shortlist on SLA improvement and operational stability under live load.",
+      "Days 61-75: train reviewers, refine routing taxonomy, and tighten exception handling rules.",
+      "Days 76-90: expand coverage only after quality metrics hold steady across multiple queue types.",
+    ],
     comparisonQuestions: [
       {
         question: "Lindy vs Zapier AI: which is better for support-first teams?",
@@ -501,6 +542,19 @@ const editorialHubs: EditorialHubConfig[] = [
       "Campaign launch cycle time from brief to execution",
       "Attribution data completeness across core channels",
       "Cost per qualified engagement after automation rollout",
+    ],
+    buyingMistakes: [
+      "Judging tools on feature breadth without mapping them to the campaign bottleneck you actually need to fix.",
+      "Ignoring credit, usage, and seat expansion economics until monthly spend has already drifted upward.",
+      "Automating too many channels at once before your attribution and launch QA process is stable.",
+    ],
+    rolloutChecklist: [
+      "Days 1-15: baseline campaign turnaround time, attribution quality, and current manual handoffs.",
+      "Days 16-30: pilot one campaign workflow from trigger through reporting with a narrow channel scope.",
+      "Days 31-45: instrument spend, error rate, and conversion-quality checkpoints for every test workflow.",
+      "Days 46-60: compare the shortlist on deployment speed, data quality, and operator maintenance burden.",
+      "Days 61-75: templatize the winning workflow and lock approval gates before broader rollout.",
+      "Days 76-90: expand to more channels only after ROI and execution quality remain consistent.",
     ],
     comparisonQuestions: [
       {
@@ -818,3 +872,4 @@ export function buildEditorialHubExperimentView(input: {
     tableCtaLabel: isVariantB ? variantB?.tableCtaLabel || "Visit" : "Visit",
   };
 }
+
