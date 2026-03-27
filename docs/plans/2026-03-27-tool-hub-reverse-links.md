@@ -4,7 +4,7 @@
 
 **Goal:** Replace the static tool-page buying-guide list with context-aware reverse links from each tool detail page to the most relevant editorial buying guides.
 
-**Architecture:** Add a small helper in the editorial hub data layer that derives related hub links for a tool from real hub recommendations and comparison questions. Then wire that helper into the tool detail page, render a concise `Featured in Buying Guides` module, and verify behavior with focused unit and e2e tests.
+**Architecture:** Add a small helper in the editorial hub data layer that derives related hub links for a tool from direct hub intent, real hub recommendations, and comparison questions. Then wire that helper into the tool detail page, render a concise `Featured in Buying Guides` module, and verify behavior with focused unit and e2e tests.
 
 **Tech Stack:** TypeScript, Next.js 16, Vitest, Playwright, CSS Modules
 
@@ -20,10 +20,11 @@
 
 Add focused unit coverage for a helper that derives related editorial hub links for a tool slug. Cover:
 
+- a title-targeted `alternatives` or `vs` page for the tool
 - a tool found in hub `recommendations`
 - a tool mentioned in `comparisonQuestions`
 - deduplication when both signals point to the same hub
-- ordering that prefers recommendation matches
+- ordering that prefers title-targeted intent, then recommendation matches
 - a maximum of three returned links
 
 **Step 2: Run test to verify it fails**

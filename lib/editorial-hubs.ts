@@ -88,6 +88,19 @@ export type EditorialHubExperimentView = {
   tableCtaLabel: string;
 };
 
+export type RelatedEditorialHubMatchType =
+  | "title"
+  | "recommendation"
+  | "comparison";
+
+export type RelatedEditorialHubLink = {
+  title: string;
+  href: string;
+  reason: string;
+  matchType: RelatedEditorialHubMatchType;
+  supportingQuestion?: string;
+};
+
 const editorialHubs: EditorialHubConfig[] = [
   {
     path: "/best-ai-automation-tools",
@@ -675,6 +688,140 @@ export function getEditorialHubConfigOrThrow(path: string): EditorialHubConfig {
 
 export function getEditorialHubPaths(): string[] {
   return allEditorialHubs.map((hub) => hub.path);
+}
+
+function toToolDisplayName(value: string): string {
+  return value
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function normalizeHubMatchToken(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function buildHubMatchTokens(input: {
+  toolSlug: string;
+  toolName?: string;
+}): string[] {
+  const unique = new Set<string>();
+  unique.add(normalizeHubMatchToken(input.toolSlug));
+
+  if (input.toolName?.trim()) {
+    unique.add(normalizeHubMatchToken(input.toolName));
+  } else {
+    unique.add(normalizeHubMatchToken(toToolDisplayName(input.toolSlug)));
+  }
+
+  return Array.from(unique).filter(Boolean);
+}
+
+function getHubComparisonQuestionMatch(
+  config: EditorialHubConfig,
+  matchTokens: string[],
+): HubComparisonQuestion | undefined {
+  return config.comparisonQuestions.find((item) => {
+    const normalizedQuestion = normalizeHubMatchToken(item.question);
+    return matchTokens.some((token) => normalizedQuestion.includes(token));
+  });
+}
+
+function isToolNamedInHubIntent(
+  config: EditorialHubConfig,
+  matchTokens: string[],
+): boolean {
+  const intent = toHubIntent(config.path);
+  if (intent !== "ALTERNATIVES" && intent !== "VS") {
+    return false;
+  }
+
+  const normalizedTitle = normalizeHubMatchToken(config.title);
+  const normalizedPath = normalizeHubMatchToken(config.path);
+
+  return matchTokens.some(
+    (token) => normalizedTitle.includes(token) || normalizedPath.includes(token),
+  );
+}
+
+function getHubIntentReason(config: EditorialHubConfig, toolDisplayName: string): string {
+  const intent = toHubIntent(config.path);
+
+  if (intent === "ALTERNATIVES") {
+    return `Decision guide for teams benchmarking alternatives to ${toolDisplayName}.`;
+  }
+
+  if (intent === "VS") {
+    return `Side-by-side buyer guide that features ${toolDisplayName} in the page focus.`;
+  }
+
+  return `${toolDisplayName} is a direct focus of this buying guide.`;
+}
+
+export function getRelatedEditorialHubLinksForTool(input: {
+  toolSlug: string;
+  toolName?: string;
+  limit?: number;
+}): RelatedEditorialHubLink[] {
+  const toolDisplayName =
+    input.toolName?.trim() || toToolDisplayName(input.toolSlug);
+  const matchTokens = buildHubMatchTokens(input);
+  const limit = input.limit ?? 3;
+  const candidates: Array<
+    RelatedEditorialHubLink & { score: number; index: number }
+  > = [];
+
+  for (const [index, config] of allEditorialHubs.entries()) {
+    const titleMatch = isToolNamedInHubIntent(config, matchTokens);
+    const recommendation = config.recommendations.find(
+      (item) => item.slug === input.toolSlug,
+    );
+    const supportingQuestion = getHubComparisonQuestionMatch(
+      config,
+      matchTokens,
+    );
+
+    if (!titleMatch && !recommendation && !supportingQuestion) {
+      continue;
+    }
+
+    const score =
+      (titleMatch ? 4 : 0) +
+      (recommendation ? 2 : 0) +
+      (supportingQuestion ? 1 : 0);
+
+    let matchType: RelatedEditorialHubMatchType = "comparison";
+    let reason = `${toolDisplayName} appears in buyer comparison questions on this guide.`;
+
+    if (titleMatch) {
+      matchType = "title";
+      reason = getHubIntentReason(config, toolDisplayName);
+    } else if (recommendation) {
+      matchType = "recommendation";
+      reason = recommendation.bestFor;
+    }
+
+    candidates.push({
+      title: config.title,
+      href: config.path,
+      reason,
+      matchType,
+      supportingQuestion: supportingQuestion?.question,
+      score,
+      index,
+    });
+  }
+
+  return candidates
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, limit)
+    .map((item) => ({
+      title: item.title,
+      href: item.href,
+      reason: item.reason,
+      matchType: item.matchType,
+      supportingQuestion: item.supportingQuestion,
+    }));
 }
 
 export function parseEditorialHubVariant(input?: string | null): EditorialHubVariant {

@@ -33,12 +33,13 @@ This leaves tool pages with weaker semantic internal links than the editorial hu
 
 ## Recommended Approach
 
-Build a deterministic helper that finds related editorial hubs for a tool using two clear signals:
+Build a deterministic helper that finds related editorial hubs for a tool using three clear signals:
 
-1. the tool appears in a hub's `recommendations`
-2. the tool is mentioned in a hub's `comparisonQuestions`
+1. the hub title or path is directly about the tool, especially for `alternatives` and `vs` pages
+2. the tool appears in a hub's `recommendations`
+3. the tool is mentioned in a hub's `comparisonQuestions`
 
-Use recommendation membership as the stronger signal, comparison-question mentions as a supporting signal, and rank results so the highest-confidence hubs appear first.
+Use title-targeted intent as the strongest signal, recommendation membership as the next signal, and comparison-question mentions as a supporting signal so the highest-confidence hubs appear first.
 
 ## Alternatives Considered
 
@@ -95,6 +96,7 @@ Each item in the module will include:
 
 The initial reason system will stay simple and explicit:
 
+- if the hub is directly about the tool through its title or path, explain that it is an alternatives or side-by-side decision guide
 - if the tool is recommended in the hub, reuse the recommendation `bestFor` text
 - if the tool is only present through comparison questions, use a short explanation that the tool is discussed in buyer comparison questions on that page
 
@@ -105,9 +107,10 @@ Results will be capped at three links to preserve focus and avoid link bloat.
 The matching logic should be deterministic and easy to audit:
 
 - iterate all editorial hubs returned by the current hub config layer
+- check whether the hub title or path directly targets the tool for `alternatives` or `vs` intent pages
 - for each hub, check whether the tool slug exists in `recommendations`
 - also scan `comparisonQuestions` for the tool name or slug tokens
-- assign recommendation matches a higher score than comparison-question-only matches
+- assign title-targeted intent the highest score, recommendation matches the next score, and comparison-question-only matches the lowest score
 - sort by match strength, then preserve hub-config order as a stable fallback
 
 This avoids fuzzy heuristics while still producing relevant links for the current commercial pages.

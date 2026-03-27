@@ -2,6 +2,7 @@
 import {
   buildEditorialHubMetadata,
   buildEditorialHubExperimentView,
+  getRelatedEditorialHubLinksForTool,
   getEditorialHubPaths,
   getEditorialHubConfigOrThrow,
   parseEditorialHubVariant,
@@ -173,6 +174,47 @@ describe("editorial hub experiments", () => {
       "zapier-ai",
       "relevance-ai",
     ]);
+  });
+
+  it("derives related editorial hub links for tool detail pages", () => {
+    const links = getRelatedEditorialHubLinksForTool({
+      toolSlug: "zapier-ai",
+      toolName: "Zapier AI",
+    });
+
+    expect(links).toHaveLength(3);
+    expect(links.map((item) => item.href)).toEqual([
+      "/best-ai-automation-tools",
+      "/best-ai-agents-for-sales",
+      "/best-ai-tools-for-support",
+    ]);
+    expect(links[0]).toMatchObject({
+      title: "Best AI Automation Tools for Ops Teams",
+      matchType: "recommendation",
+      reason: "Fast cross-app launch with low ops overhead",
+    });
+    expect(links[0]?.supportingQuestion).toContain("Zapier AI vs Make");
+  });
+
+  it("keeps related tool hub links deduplicated and ranks title-targeted guides first", () => {
+    const links = getRelatedEditorialHubLinksForTool({
+      toolSlug: "make",
+      toolName: "Make",
+      limit: 5,
+    });
+
+    expect(new Set(links.map((item) => item.href)).size).toBe(links.length);
+    expect(links[0]).toMatchObject({
+      href: "/make-alternatives",
+      matchType: "title",
+    });
+    expect(
+      links.some(
+        (item) =>
+          item.href === "/best-ai-automation-tools" &&
+          item.matchType === "recommendation",
+      ),
+    ).toBe(true);
   });
 });
 

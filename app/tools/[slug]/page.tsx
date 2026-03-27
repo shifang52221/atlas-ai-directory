@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AdsenseSlotCard } from "@/components/adsense-slot-card";
 import { SiteFooter } from "@/components/site-footer";
 import { isToolDetailAdsEligible } from "@/lib/adsense-policy";
+import { getRelatedEditorialHubLinksForTool } from "@/lib/editorial-hubs";
 import {
   getToolDetailSeoContent,
   TOOL_COMPARE_SECTION_ID,
@@ -81,6 +82,10 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
   const riskControls = seoContent.riskControls;
   const faqItems = seoContent.faqItems;
   const useCaseLinks = seoContent.useCaseLinks;
+  const relatedBuyingGuides = getRelatedEditorialHubLinksForTool({
+    toolSlug: profile.slug,
+    toolName: profile.name,
+  });
   const isAdsEligible = isToolDetailAdsEligible({
     description: profile.description,
     highlights: profile.highlights,
@@ -106,24 +111,6 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
             profile.comparisonNotes[0] ||
             "Compare setup friction, reliability, and cost at your expected usage.",
         }));
-  const editorialHubLinks = [
-    {
-      label: "Best AI Automation Tools for Ops Teams",
-      href: "/best-ai-automation-tools",
-    },
-    {
-      label: "Best AI Agents for Sales Teams",
-      href: "/best-ai-agents-for-sales",
-    },
-    {
-      label: "Best AI Tools for Customer Support",
-      href: "/best-ai-tools-for-support",
-    },
-    {
-      label: "Best AI Tools for Marketing Teams",
-      href: "/best-ai-tools-for-marketing",
-    },
-  ];
   const toolJsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -391,15 +378,30 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
             </ul>
           </article>
 
-          <article className={styles.card}>
-            <h2>Best-of Buying Guides</h2>
-            <ul className={styles.linkList}>
-              {editorialHubLinks.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href}>{item.label}</Link>
-                </li>
-              ))}
-            </ul>
+          <article className={styles.card} data-ui="featured-buying-guides">
+            <h2>Featured in Buying Guides</h2>
+            {relatedBuyingGuides.length > 0 ? (
+              <ul className={styles.relatedGuidesList}>
+                {relatedBuyingGuides.map((item) => (
+                  <li key={item.href} className={styles.relatedGuideItem}>
+                    <Link href={item.href}>{item.title}</Link>
+                    <p className={styles.relatedGuideReason}>{item.reason}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className={styles.relatedGuidesFallback}>
+                <p>Browse adjacent buyer journeys before narrowing your shortlist.</p>
+                <ul className={styles.linkList}>
+                  <li>
+                    <Link href="/compare">Compare AI tools side by side</Link>
+                  </li>
+                  <li>
+                    <Link href="/use-cases">Browse AI use-case clusters</Link>
+                  </li>
+                </ul>
+              </div>
+            )}
           </article>
 
           {isAdsEligible ? (
