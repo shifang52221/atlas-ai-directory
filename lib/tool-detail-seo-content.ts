@@ -8,6 +8,12 @@ export type ToolDetailSeoInput = {
   pricingLabel: string;
 };
 
+export const TOOL_COMPARE_SECTION_ID = "compare-alternatives";
+
+export function buildToolCompareSectionHref(slug: string): string {
+  return `/tools/${slug}#${TOOL_COMPARE_SECTION_ID}`;
+}
+
 export type ToolDetailFaqItem = {
   question: string;
   answer: string;

@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { AdsenseSlotCard } from "@/components/adsense-slot-card";
 import { SiteFooter } from "@/components/site-footer";
 import { isToolDetailAdsEligible } from "@/lib/adsense-policy";
-import { getToolDetailSeoContent } from "@/lib/tool-detail-seo-content";
+import {
+  getToolDetailSeoContent,
+  TOOL_COMPARE_SECTION_ID,
+} from "@/lib/tool-detail-seo-content";
 import { getFallbackToolProfiles, getToolProfileBySlug } from "@/lib/tool-profile-data";
 import styles from "./page.module.css";
 
@@ -344,7 +347,7 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
             </div>
           </article>
 
-          <article className={styles.card}>
+          <article id={TOOL_COMPARE_SECTION_ID} className={styles.card}>
             <h2>Compare {profile.name} Against Alternatives</h2>
             <ul className={styles.compareList}>
               {compareItems.map((item) => (

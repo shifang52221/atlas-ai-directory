@@ -8,12 +8,40 @@ import {
   type EditorialHubConfig,
   type EditorialHubVariant,
 } from "@/lib/editorial-hubs";
+import { buildToolCompareSectionHref } from "@/lib/tool-detail-seo-content";
 import styles from "./editorial-hub-page.module.css";
 
 type EditorialHubPageProps = {
   config: EditorialHubConfig;
   variant?: EditorialHubVariant;
 };
+
+function normalizeCompareToken(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function getComparisonQuestionLinks(
+  question: string,
+  rankedTools: Array<{ slug: string; name: string }>,
+) {
+  const normalizedQuestion = normalizeCompareToken(question);
+
+  return rankedTools
+    .filter((tool) => {
+      const normalizedName = normalizeCompareToken(tool.name);
+      const normalizedSlug = normalizeCompareToken(tool.slug);
+
+      return (
+        normalizedQuestion.includes(normalizedName) ||
+        normalizedQuestion.includes(normalizedSlug)
+      );
+    })
+    .slice(0, 2)
+    .map((tool) => ({
+      href: buildToolCompareSectionHref(tool.slug),
+      label: `Open ${tool.name} compare block`,
+    }));
+}
 
 export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProps) {
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
@@ -296,12 +324,25 @@ export function EditorialHubPage({ config, variant = "A" }: EditorialHubPageProp
         <section id="comparison-questions" className={styles.section}>
           <h2>Comparison questions</h2>
           <div className={styles.faqList}>
-            {config.comparisonQuestions.map((item) => (
-              <details key={`comparison-${item.question}`} className={styles.faqItem}>
-                <summary>{item.question}</summary>
-                <p>{item.answer}</p>
-              </details>
-            ))}
+            {config.comparisonQuestions.map((item) => {
+              const questionLinks = getComparisonQuestionLinks(item.question, rankedTools);
+
+              return (
+                <details key={`comparison-${item.question}`} className={styles.faqItem} open>
+                  <summary>{item.question}</summary>
+                  <p>{item.answer}</p>
+                  {questionLinks.length > 0 ? (
+                    <div className={styles.questionLinks} data-ui="comparison-question-links">
+                      {questionLinks.map((link) => (
+                        <Link key={`${item.question}-${link.href}`} href={link.href}>
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </details>
+              );
+            })}
           </div>
         </section>
 

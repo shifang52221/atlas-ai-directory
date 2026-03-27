@@ -77,6 +77,9 @@ for (const hub of hubs) {
     await expect(
       page.getByRole("heading", { level: 2, name: "Comparison questions" }),
     ).toBeVisible();
+    await expect(
+      page.locator('[data-ui="comparison-question-links"] a[href*="#compare-alternatives"]').first(),
+    ).toBeVisible();
     await expect(page.getByRole("table")).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "FAQ" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Hub breadcrumbs" })).toBeVisible();

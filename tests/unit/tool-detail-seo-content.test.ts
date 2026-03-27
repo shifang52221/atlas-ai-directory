@@ -1,7 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { getToolDetailSeoContent } from "../../lib/tool-detail-seo-content";
+import {
+  buildToolCompareSectionHref,
+  getToolDetailSeoContent,
+} from "../../lib/tool-detail-seo-content";
 
 describe("tool detail seo content", () => {
+  it("builds stable compare section hrefs for tool detail linking", () => {
+    expect(buildToolCompareSectionHref("zapier-ai")).toBe(
+      "/tools/zapier-ai#compare-alternatives",
+    );
+  });
+
   it("keeps at least three explicit X vs Y faq questions for each core tool", () => {
     const coreInputs = [
       {

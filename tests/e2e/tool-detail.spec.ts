@@ -47,6 +47,7 @@ test("tool detail page renders profile and monetization slots", async ({
       name: "Compare Zapier AI Against Alternatives",
     }),
   ).toBeVisible();
+  await expect(page.locator("#compare-alternatives")).toBeVisible();
   await expect(page.getByText("Zapier AI vs Make", { exact: false }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Make", exact: true })).toBeVisible();
   await expect(
