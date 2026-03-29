@@ -91,7 +91,9 @@ export type EditorialHubExperimentView = {
 export type RelatedEditorialHubMatchType =
   | "title"
   | "recommendation"
-  | "comparison";
+  | "comparison"
+  | "tool_overlap"
+  | "intent";
 
 export type RelatedEditorialHubLink = {
   title: string;
@@ -693,13 +695,36 @@ export function getEditorialHubPaths(): string[] {
 function toToolDisplayName(value: string): string {
   return value
     .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .map((part) => {
+      if (part.toLowerCase() === "ai") {
+        return "AI";
+      }
+
+      return part.charAt(0).toUpperCase() + part.slice(1);
+    })
     .join(" ");
 }
 
 function normalizeHubMatchToken(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
+
+const HUB_MATCH_STOPWORDS = new Set([
+  "ai",
+  "tool",
+  "tools",
+  "use",
+  "case",
+  "cases",
+  "this",
+  "that",
+  "for",
+  "the",
+  "and",
+  "with",
+  "team",
+  "teams",
+]);
 
 function buildHubMatchTokens(input: {
   toolSlug: string;
@@ -715,6 +740,32 @@ function buildHubMatchTokens(input: {
   }
 
   return Array.from(unique).filter(Boolean);
+}
+
+function buildUseCaseIntentTokens(input: {
+  useCaseSlug: string;
+  useCaseName?: string;
+}): string[] {
+  const ordered = new Set<string>();
+
+  for (const source of [input.useCaseSlug, input.useCaseName || ""]) {
+    const normalized = normalizeHubMatchToken(source);
+    if (!normalized) {
+      continue;
+    }
+
+    for (const token of normalized.split(" ")) {
+      if (
+        token.length < 3 ||
+        HUB_MATCH_STOPWORDS.has(token)
+      ) {
+        continue;
+      }
+      ordered.add(token);
+    }
+  }
+
+  return Array.from(ordered);
 }
 
 function getHubComparisonQuestionMatch(
@@ -756,6 +807,132 @@ function getHubIntentReason(config: EditorialHubConfig, toolDisplayName: string)
   }
 
   return `${toolDisplayName} is a direct focus of this buying guide.`;
+}
+
+function countUseCaseIntentScore(
+  config: EditorialHubConfig,
+  intentTokens: string[],
+): number {
+  if (intentTokens.length === 0) {
+    return 0;
+  }
+
+  const normalizedTitle = normalizeHubMatchToken(config.title);
+  const normalizedPath = normalizeHubMatchToken(config.path);
+
+  return intentTokens.reduce((score, token, index) => {
+    if (
+      !normalizedTitle.includes(token) &&
+      !normalizedPath.includes(token)
+    ) {
+      return score;
+    }
+
+    if (index === 0) {
+      return score + 3;
+    }
+
+    if (index === 1) {
+      return score + 2;
+    }
+
+    return score + 1;
+  }, 0);
+}
+
+function countComparisonToolMatches(
+  config: EditorialHubConfig,
+  toolSlugs: string[],
+): number {
+  const questions = config.comparisonQuestions.map((item) =>
+    normalizeHubMatchToken(item.question),
+  );
+
+  return toolSlugs.reduce((count, slug) => {
+    const tokens = buildHubMatchTokens({ toolSlug: slug });
+    const isMatched = questions.some((question) =>
+      tokens.some((token) => question.includes(token)),
+    );
+    return count + (isMatched ? 1 : 0);
+  }, 0);
+}
+
+function joinDisplayNames(values: string[]): string {
+  if (values.length <= 1) {
+    return values[0] || "";
+  }
+
+  if (values.length === 2) {
+    return `${values[0]} and ${values[1]}`;
+  }
+
+  return `${values.slice(0, -1).join(", ")}, and ${values[values.length - 1]}`;
+}
+
+export function getRelatedEditorialHubLinksForUseCase(input: {
+  useCaseSlug: string;
+  useCaseName: string;
+  toolSlugs: string[];
+  limit?: number;
+}): RelatedEditorialHubLink[] {
+  const limit = input.limit ?? 3;
+  const intentTokens = buildUseCaseIntentTokens({
+    useCaseSlug: input.useCaseSlug,
+    useCaseName: input.useCaseName,
+  });
+  const candidates: Array<
+    RelatedEditorialHubLink & { score: number; index: number }
+  > = [];
+
+  for (const [index, config] of allEditorialHubs.entries()) {
+    const sharedToolSlugs = config.recommendations
+      .map((item) => item.slug)
+      .filter((slug) => input.toolSlugs.includes(slug));
+    const intentScore = countUseCaseIntentScore(config, intentTokens);
+    const comparisonMatchCount = countComparisonToolMatches(
+      config,
+      input.toolSlugs,
+    );
+
+    if (sharedToolSlugs.length === 0 && intentScore === 0 && comparisonMatchCount === 0) {
+      continue;
+    }
+
+    const sharedToolNames = sharedToolSlugs.map((slug) =>
+      toToolDisplayName(slug),
+    );
+    const score =
+      sharedToolSlugs.length * 10 +
+      intentScore +
+      comparisonMatchCount;
+
+    const matchType: RelatedEditorialHubMatchType =
+      sharedToolSlugs.length > 0 ? "tool_overlap" : "intent";
+    const reason =
+      sharedToolNames.length > 0
+        ? `Includes ${joinDisplayNames(sharedToolNames)} for ${input.useCaseName.toLowerCase()} teams.`
+        : `Relevant for teams evaluating ${input.useCaseName.toLowerCase()} buying options.`;
+
+    candidates.push({
+      title: config.title,
+      href: config.path,
+      reason,
+      matchType,
+      score,
+      index,
+    });
+  }
+
+  return candidates
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, limit)
+    .map((item) => ({
+      title: item.title,
+      href: item.href,
+      reason: item.reason,
+      matchType: item.matchType,
+      supportingQuestion: item.supportingQuestion,
+    }));
 }
 
 export function getRelatedEditorialHubLinksForTool(input: {

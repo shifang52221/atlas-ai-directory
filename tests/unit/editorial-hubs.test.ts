@@ -2,6 +2,7 @@
 import {
   buildEditorialHubMetadata,
   buildEditorialHubExperimentView,
+  getRelatedEditorialHubLinksForUseCase,
   getRelatedEditorialHubLinksForTool,
   getEditorialHubPaths,
   getEditorialHubConfigOrThrow,
@@ -215,6 +216,38 @@ describe("editorial hub experiments", () => {
           item.matchType === "recommendation",
       ),
     ).toBe(true);
+  });
+
+  it("derives related buying guides for support automation use cases", () => {
+    const links = getRelatedEditorialHubLinksForUseCase({
+      useCaseSlug: "support-automation",
+      useCaseName: "Support Automation",
+      toolSlugs: ["lindy", "zapier-ai", "relevance-ai"],
+    });
+
+    expect(links).toHaveLength(3);
+    expect(links.map((item) => item.href)).toEqual([
+      "/best-ai-tools-for-support",
+      "/best-ai-tools-for-support-ticket-triage",
+      "/best-ai-automation-tools",
+    ]);
+    expect(links[0]).toMatchObject({
+      title: "Best AI Tools for Customer Support",
+      matchType: "tool_overlap",
+      reason:
+        "Includes Lindy, Zapier AI, and Relevance AI for support automation teams.",
+    });
+  });
+
+  it("returns no use-case buying guides when there is no relevant overlap or intent match", () => {
+    const links = getRelatedEditorialHubLinksForUseCase({
+      useCaseSlug: "board-meeting-notes",
+      useCaseName: "Board Meeting Notes",
+      toolSlugs: ["unknown-tool"],
+      limit: 5,
+    });
+
+    expect(links).toEqual([]);
   });
 });
 
