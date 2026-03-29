@@ -63,6 +63,9 @@ test("tool detail page renders profile and monetization slots", async ({
     page.getByRole("link", { name: /Compare Zapier AI vs/i }).first(),
   ).toBeVisible();
   await expect(
+    page.getByRole("link", { name: "Compare Zapier AI vs Make" }),
+  ).toHaveAttribute("href", "/compare/zapier-ai-vs-make");
+  await expect(
     page.getByRole("link", { name: /Best use cases for Zapier AI/i }),
   ).toBeVisible();
 

@@ -14,7 +14,7 @@ describe("compare page data", () => {
     expect(new Set(titles).size).toBe(titles.length);
     expect(data.headToHeadComparisons[0]).toMatchObject({
       title: "Zapier AI vs Make",
-      href: "/tools/zapier-ai#compare-alternatives",
+      href: "/compare/zapier-ai-vs-make",
     });
   });
 

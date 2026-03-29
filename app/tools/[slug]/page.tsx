@@ -5,6 +5,7 @@ import { AdsenseSlotCard } from "@/components/adsense-slot-card";
 import { SiteFooter } from "@/components/site-footer";
 import { isToolDetailAdsEligible } from "@/lib/adsense-policy";
 import { getRelatedEditorialHubLinksForTool } from "@/lib/editorial-hubs";
+import { getCanonicalToolVsHref } from "@/lib/tool-vs-pages";
 import {
   getToolDetailSeoContent,
   TOOL_COMPARE_SECTION_ID,
@@ -358,7 +359,12 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
             <ul className={styles.linkList}>
               {alternatives.map((tool) => (
                 <li key={`${tool.slug}-compare`}>
-                  <Link href={`/compare?tool=${profile.slug}&vs=${tool.slug}`}>
+                  <Link
+                    href={
+                      getCanonicalToolVsHref(profile.slug, tool.slug) ||
+                      `/compare?tool=${profile.slug}&vs=${tool.slug}`
+                    }
+                  >
                     Compare {profile.name} vs {tool.name}
                   </Link>
                 </li>

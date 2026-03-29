@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { ToolStatus } from "@prisma/client";
 import { getDb } from "@/lib/db";
 import { getFallbackToolProfiles } from "@/lib/tool-profile-data";
+import { getToolVsPageSlugs } from "@/lib/tool-vs-pages";
 import { getFallbackUseCaseSlugs } from "@/lib/use-case-data";
 
 function getBaseUrl(): string {
@@ -117,5 +118,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  return [...staticEntries, ...toolEntries, ...useCaseEntries];
+  const toolVsEntries: MetadataRoute.Sitemap = getToolVsPageSlugs().map(
+    (pairSlug) => {
+      const url = new URL(`/compare/${pairSlug}`, baseUrl).toString();
+
+      return {
+        url,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.75,
+        alternates: withLanguageAlternates(url),
+      };
+    },
+  );
+
+  return [...staticEntries, ...toolEntries, ...useCaseEntries, ...toolVsEntries];
 }

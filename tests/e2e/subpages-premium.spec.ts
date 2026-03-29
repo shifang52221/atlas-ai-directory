@@ -73,6 +73,9 @@ test("compare page renders comparison hub sections and methodology links", async
   await expect(useCaseSection.getByRole("link").first()).toBeVisible();
   await expect(buyingGuideSection.getByRole("link").first()).toBeVisible();
   await expect(
+    headToHeadSection.getByRole("link", { name: "Zapier AI vs Make" }).first(),
+  ).toHaveAttribute("href", "/compare/zapier-ai-vs-make");
+  await expect(
     methodologySection.getByRole("link", {
       name: "Editorial Policy",
       exact: true,

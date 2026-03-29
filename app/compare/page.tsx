@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { getComparePageData } from "@/lib/compare-page-data";
+import { getCanonicalToolVsHref } from "@/lib/tool-vs-pages";
 import styles from "./page.module.css";
 
 const nav = [
@@ -32,6 +34,21 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+type ComparePageProps = {
+  searchParams: Promise<{
+    tool?: string | string[];
+    vs?: string | string[];
+  }>;
+};
+
+function getSingleQueryValue(value?: string | string[]): string {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+
+  return value ?? "";
+}
+
 function formatGuideType(value: "best_of" | "alternatives" | "vs"): string {
   if (value === "best_of") {
     return "Best-of guide";
@@ -44,7 +61,16 @@ function formatGuideType(value: "best_of" | "alternatives" | "vs"): string {
   return "VS guide";
 }
 
-export default function ComparePage() {
+export default async function ComparePage({ searchParams }: ComparePageProps) {
+  const query = await searchParams;
+  const toolSlug = getSingleQueryValue(query.tool);
+  const vsToolSlug = getSingleQueryValue(query.vs);
+
+  if (toolSlug && vsToolSlug) {
+    const canonicalHref = getCanonicalToolVsHref(toolSlug, vsToolSlug);
+    redirect(canonicalHref ?? "/compare");
+  }
+
   const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
   const comparePageData = getComparePageData();
   const compareJsonLd = {

@@ -2,6 +2,7 @@ import {
   getEditorialHubConfigOrThrow,
   getEditorialHubPaths,
 } from "./editorial-hubs";
+import { getCanonicalToolVsHref } from "./tool-vs-pages";
 import {
   buildToolCompareSectionHref,
   getToolDetailSeoContent,
@@ -282,7 +283,9 @@ function buildHeadToHeadComparisons(): CompareHeadToHeadComparison[] {
 
       return {
         title: `${firstTool.name} vs ${secondTool.name}`,
-        href: buildToolCompareSectionHref(firstSlug),
+        href:
+          getCanonicalToolVsHref(firstSlug, secondSlug) ||
+          buildToolCompareSectionHref(firstSlug),
         description: pair.bestDescription,
         signalCount: pair.signalCount,
       };
