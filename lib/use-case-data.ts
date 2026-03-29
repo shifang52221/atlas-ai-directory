@@ -441,6 +441,10 @@ const fallbackUseCaseMap = new Map(
   fallbackUseCases.map((item) => [item.slug, item]),
 );
 
+export function getFallbackUseCaseProfiles(): UseCaseProfile[] {
+  return fallbackUseCases;
+}
+
 export function getFallbackUseCaseSlugs(): string[] {
   return fallbackUseCases.map((item) => item.slug);
 }
