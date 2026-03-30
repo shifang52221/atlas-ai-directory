@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { ToolStatus } from "@prisma/client";
+import { ToolIndexingStatus, ToolStatus } from "@prisma/client";
 import { getDb } from "@/lib/db";
 import { getFallbackToolProfiles } from "@/lib/tool-profile-data";
 import { getToolVsPageSlugs } from "@/lib/tool-vs-pages";
@@ -24,12 +24,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let toolSlugs: string[] = [];
   let useCaseSlugs: string[] = [];
+  let isDbAvailable = true;
 
   try {
     const db = getDb();
     const [tools, categories] = await Promise.all([
       db.tool.findMany({
-        where: { status: ToolStatus.ACTIVE },
+        where: {
+          status: ToolStatus.ACTIVE,
+          indexingStatus: ToolIndexingStatus.INDEX,
+        },
         orderBy: { updatedAt: "desc" },
         take: 5000,
         select: { slug: true },
@@ -44,14 +48,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     toolSlugs = tools.map((tool) => tool.slug).filter(Boolean);
     useCaseSlugs = categories.map((category) => category.slug).filter(Boolean);
   } catch {
+    isDbAvailable = false;
     // Fallback handled below when DB is unavailable.
   }
 
-  if (toolSlugs.length === 0) {
+  if (!isDbAvailable && toolSlugs.length === 0) {
     toolSlugs = getFallbackToolProfiles().map((tool) => tool.slug);
   }
 
-  if (useCaseSlugs.length === 0) {
+  if (!isDbAvailable && useCaseSlugs.length === 0) {
     useCaseSlugs = getFallbackUseCaseSlugs();
   }
 

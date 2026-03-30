@@ -5,6 +5,7 @@ import { AdsenseSlotCard } from "@/components/adsense-slot-card";
 import { SiteFooter } from "@/components/site-footer";
 import { isToolDetailAdsEligible } from "@/lib/adsense-policy";
 import { getRelatedEditorialHubLinksForTool } from "@/lib/editorial-hubs";
+import { isToolIndexable } from "@/lib/tool-quality-policy";
 import { getCanonicalToolVsHref } from "@/lib/tool-vs-pages";
 import {
   getToolDetailSeoContent,
@@ -39,6 +40,12 @@ export async function generateMetadata({
     alternates: {
       canonical: new URL(`/tools/${profile.slug}`, baseUrl).toString(),
     },
+    robots: isToolIndexable(profile)
+      ? undefined
+      : {
+          index: false,
+          follow: true,
+        },
   };
 }
 
@@ -92,6 +99,7 @@ export default async function ToolDetailPage({ params }: ToolDetailPageProps) {
     highlights: profile.highlights,
     comparisonNotes: profile.comparisonNotes,
     faqCount: faqItems.length,
+    hasEditorialApproval: isToolIndexable(profile),
   });
   const fallbackToolMap = new Map(
     getFallbackToolProfiles().map((tool) => [tool.slug, tool]),

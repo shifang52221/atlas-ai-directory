@@ -2,6 +2,11 @@ import { LinkKind } from "@prisma/client";
 import { getDb } from "./db";
 import { withAffiliateTracking } from "./monetization-config";
 import { buildOutboundSignature } from "./outbound-signature";
+import type {
+  ToolEvidenceStatusValue,
+  ToolIndexingStatusValue,
+  ToolReviewStatusValue,
+} from "./tool-quality-policy";
 
 export type ToolProfile = {
   slug: string;
@@ -17,6 +22,14 @@ export type ToolProfile = {
   updatedAt: string;
   outboundHref: string;
   outboundDisclosure: string;
+  reviewStatus: ToolReviewStatusValue;
+  indexingStatus: ToolIndexingStatusValue;
+  qualityScore: number;
+  evidenceStatus: ToolEvidenceStatusValue;
+  authorId: string | null;
+  reviewedById: string | null;
+  lastReviewedAt: string | null;
+  changeSummary: string | null;
 };
 
 type BuildOutboundHrefInput = {
@@ -40,7 +53,16 @@ export type CommercialEditorialHubPlacementId =
 
 type FallbackToolProfileSeed = Omit<
   ToolProfile,
-  "outboundHref" | "outboundDisclosure"
+  | "outboundHref"
+  | "outboundDisclosure"
+  | "reviewStatus"
+  | "indexingStatus"
+  | "qualityScore"
+  | "evidenceStatus"
+  | "authorId"
+  | "reviewedById"
+  | "lastReviewedAt"
+  | "changeSummary"
 > & {
   linkKind?: LinkKind;
 };
@@ -284,6 +306,15 @@ function mapFallbackProfile(seed: FallbackToolProfileSeed): ToolProfile {
       placementId: "tool_profile_primary",
     }),
     outboundDisclosure: getOutboundDisclosure(linkKind),
+    reviewStatus: "APPROVED",
+    indexingStatus: "INDEX",
+    qualityScore: 85,
+    evidenceStatus: "COMPLETE",
+    authorId: "atlas_editorial",
+    reviewedById: "atlas_editorial",
+    lastReviewedAt: seed.updatedAt,
+    changeSummary:
+      "Editorially maintained fallback profile with launch-ready decision guidance.",
   };
 }
 
@@ -311,6 +342,14 @@ export async function getToolProfileBySlug(
         currency: true,
         updatedAt: true,
         status: true,
+        reviewStatus: true,
+        indexingStatus: true,
+        qualityScore: true,
+        evidenceStatus: true,
+        authorId: true,
+        reviewedById: true,
+        lastReviewedAt: true,
+        changeSummary: true,
         categories: {
           select: {
             category: {
@@ -382,6 +421,14 @@ export async function getToolProfileBySlug(
         placementId: "tool_profile_primary",
       }),
       outboundDisclosure: getOutboundDisclosure(linkKind),
+      reviewStatus: tool.reviewStatus,
+      indexingStatus: tool.indexingStatus,
+      qualityScore: tool.qualityScore,
+      evidenceStatus: tool.evidenceStatus,
+      authorId: tool.authorId,
+      reviewedById: tool.reviewedById,
+      lastReviewedAt: tool.lastReviewedAt?.toISOString() ?? null,
+      changeSummary: tool.changeSummary,
     };
   } catch {
     return fallbackProfiles.find((item) => item.slug === slug) ?? null;

@@ -1,4 +1,10 @@
-import { LinkKind, ToolStatus } from "@prisma/client";
+import {
+  LinkKind,
+  ToolEvidenceStatus,
+  ToolIndexingStatus,
+  ToolReviewStatus,
+  ToolStatus,
+} from "@prisma/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -44,6 +50,14 @@ const publishErrorLabels: Record<string, string> = {
   description: "Description",
   categories: "At least one category",
   primary_link: "Primary tracking link",
+  review_status: "Approved review status",
+  indexing_status: "Indexing status set to INDEX",
+  quality_score: "Quality score threshold",
+  evidence_status: "Evidence status",
+  author: "Author",
+  reviewed_by: "Reviewer",
+  last_reviewed_at: "Last reviewed date",
+  change_summary: "Change summary",
 };
 
 function parsePublishMissing(query: {
@@ -87,6 +101,14 @@ export default async function AdminToolDetailPage({
       websiteUrl: true,
       description: true,
       status: true,
+      reviewStatus: true,
+      indexingStatus: true,
+      qualityScore: true,
+      evidenceStatus: true,
+      authorId: true,
+      reviewedById: true,
+      lastReviewedAt: true,
+      changeSummary: true,
       setupMinutes: true,
       pricingFrom: true,
       currency: true,
@@ -271,6 +293,86 @@ export default async function AdminToolDetailPage({
               <option value={LinkKind.DIRECT}>DIRECT</option>
             </select>
           </div>
+          <div className={styles.field}>
+            <label htmlFor="edit-tool-review-status">Review Status</label>
+            <select
+              id="edit-tool-review-status"
+              name="reviewStatus"
+              defaultValue={tool.reviewStatus}
+            >
+              <option value={ToolReviewStatus.DRAFT}>DRAFT</option>
+              <option value={ToolReviewStatus.IN_REVIEW}>IN_REVIEW</option>
+              <option value={ToolReviewStatus.APPROVED}>APPROVED</option>
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="edit-tool-indexing-status">Indexing Status</label>
+            <select
+              id="edit-tool-indexing-status"
+              name="indexingStatus"
+              defaultValue={tool.indexingStatus}
+            >
+              <option value={ToolIndexingStatus.NOINDEX}>NOINDEX</option>
+              <option value={ToolIndexingStatus.INDEX}>INDEX</option>
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="edit-tool-quality-score">Quality Score</label>
+            <input
+              id="edit-tool-quality-score"
+              name="qualityScore"
+              type="number"
+              min="0"
+              max="100"
+              defaultValue={tool.qualityScore}
+            />
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="edit-tool-evidence-status">Evidence Status</label>
+            <select
+              id="edit-tool-evidence-status"
+              name="evidenceStatus"
+              defaultValue={tool.evidenceStatus}
+            >
+              <option value={ToolEvidenceStatus.MISSING}>MISSING</option>
+              <option value={ToolEvidenceStatus.PARTIAL}>PARTIAL</option>
+              <option value={ToolEvidenceStatus.COMPLETE}>COMPLETE</option>
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="edit-tool-author-id">Author ID</label>
+            <input
+              id="edit-tool-author-id"
+              name="authorId"
+              defaultValue={tool.authorId || ""}
+            />
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="edit-tool-reviewed-by-id">Reviewer ID</label>
+            <input
+              id="edit-tool-reviewed-by-id"
+              name="reviewedById"
+              defaultValue={tool.reviewedById || ""}
+            />
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="edit-tool-last-reviewed-at">Last Reviewed</label>
+            <input
+              id="edit-tool-last-reviewed-at"
+              name="lastReviewedAt"
+              type="date"
+              defaultValue={tool.lastReviewedAt?.toISOString().slice(0, 10) || ""}
+            />
+          </div>
+          <div className={styles.fieldFull}>
+            <label htmlFor="edit-tool-change-summary">Change Summary</label>
+            <textarea
+              id="edit-tool-change-summary"
+              name="changeSummary"
+              rows={3}
+              defaultValue={tool.changeSummary || ""}
+            />
+          </div>
           <div className={styles.formActions}>
             <button type="submit">Save Changes</button>
           </div>
@@ -280,8 +382,8 @@ export default async function AdminToolDetailPage({
       <section className={styles.panel}>
         <h2>Publishing</h2>
         <p>
-          Publish will validate required fields and switch status to ACTIVE when
-          all checks pass.
+          Publish validates both base completeness and editorial quality gates
+          before switching status to ACTIVE.
         </p>
         <form action={publishToolAction}>
           <input type="hidden" name="slug" value={tool.slug} />

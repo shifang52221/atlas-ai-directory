@@ -3,6 +3,7 @@ type ToolAdsEligibilityInput = {
   highlights: string[];
   comparisonNotes: string[];
   faqCount: number;
+  hasEditorialApproval: boolean;
 };
 
 type UseCaseAdsEligibilityInput = {
@@ -44,6 +45,10 @@ export function isAdsPathAllowed(path: string): boolean {
 export function isToolDetailAdsEligible(
   input: ToolAdsEligibilityInput,
 ): boolean {
+  if (!input.hasEditorialApproval) {
+    return false;
+  }
+
   const description = input.description.trim();
   if (
     description.length < 90 ||

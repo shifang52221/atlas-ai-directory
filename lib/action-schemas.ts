@@ -1,5 +1,14 @@
-import { LinkKind, SubmissionStatus, ToolStatus } from "@prisma/client";
+import {
+  LinkKind,
+  SubmissionStatus,
+  ToolEvidenceStatus,
+  ToolIndexingStatus,
+  ToolReviewStatus,
+  ToolStatus,
+} from "@prisma/client";
 import { z } from "zod";
+
+type NativeEnumLike = Record<string, string | number>;
 
 function toStringValue(formData: FormData, key: string): string {
   return String(formData.get(key) || "");
@@ -10,6 +19,18 @@ function optionalTrimmed(max: number) {
     .string()
     .transform((value) => value.trim() || undefined)
     .pipe(z.string().max(max).optional());
+}
+
+function optionalEnumWithDefault<T extends NativeEnumLike>(
+  enumObject: T,
+  fallback: T[keyof T],
+) {
+  return z
+    .preprocess((value) => {
+      const text = String(value ?? "").trim();
+      return text || undefined;
+    }, z.nativeEnum(enumObject).optional())
+    .transform((value) => value ?? fallback);
 }
 
 const httpUrlSchema = z
@@ -88,6 +109,42 @@ const toolFormBaseSchema = z.object({
       "invalid_tracking_url",
     ),
   linkKind: z.nativeEnum(LinkKind),
+  reviewStatus: optionalEnumWithDefault(
+    ToolReviewStatus,
+    ToolReviewStatus.DRAFT,
+  ),
+  indexingStatus: optionalEnumWithDefault(
+    ToolIndexingStatus,
+    ToolIndexingStatus.NOINDEX,
+  ),
+  qualityScore: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((value) => {
+      const text = String(value ?? "").trim();
+      if (!text) {
+        return 0;
+      }
+      const parsed = Number.parseInt(text, 10);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    })
+    .pipe(z.number().int().min(0).max(100)),
+  evidenceStatus: optionalEnumWithDefault(
+    ToolEvidenceStatus,
+    ToolEvidenceStatus.MISSING,
+  ),
+  authorId: optionalTrimmed(120),
+  reviewedById: optionalTrimmed(120),
+  lastReviewedAt: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => value || undefined)
+    .refine(
+      (value) => !value || !Number.isNaN(new Date(value).getTime()),
+      "invalid_review_date",
+    ),
+  changeSummary: optionalTrimmed(1600),
   currentStatusFilter: z.string().trim().optional(),
 });
 
@@ -321,6 +378,14 @@ export function parseAdminToolCreateForm(formData: FormData) {
     categories: toStringValue(formData, "categories"),
     trackingUrl: toStringValue(formData, "trackingUrl"),
     linkKind: toStringValue(formData, "linkKind"),
+    reviewStatus: toStringValue(formData, "reviewStatus"),
+    indexingStatus: toStringValue(formData, "indexingStatus"),
+    qualityScore: toStringValue(formData, "qualityScore"),
+    evidenceStatus: toStringValue(formData, "evidenceStatus"),
+    authorId: toStringValue(formData, "authorId"),
+    reviewedById: toStringValue(formData, "reviewedById"),
+    lastReviewedAt: toStringValue(formData, "lastReviewedAt"),
+    changeSummary: toStringValue(formData, "changeSummary"),
     currentStatusFilter: toStringValue(formData, "currentStatusFilter"),
   });
 }
@@ -340,6 +405,14 @@ export function parseAdminToolUpdateForm(formData: FormData) {
     categories: toStringValue(formData, "categories"),
     trackingUrl: toStringValue(formData, "trackingUrl"),
     linkKind: toStringValue(formData, "linkKind"),
+    reviewStatus: toStringValue(formData, "reviewStatus"),
+    indexingStatus: toStringValue(formData, "indexingStatus"),
+    qualityScore: toStringValue(formData, "qualityScore"),
+    evidenceStatus: toStringValue(formData, "evidenceStatus"),
+    authorId: toStringValue(formData, "authorId"),
+    reviewedById: toStringValue(formData, "reviewedById"),
+    lastReviewedAt: toStringValue(formData, "lastReviewedAt"),
+    changeSummary: toStringValue(formData, "changeSummary"),
     currentStatusFilter: toStringValue(formData, "currentStatusFilter"),
   });
 }
