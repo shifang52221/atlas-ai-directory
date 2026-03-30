@@ -14,6 +14,9 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
+    "db:status": "prisma migrate status",
+    "db:validate": "node -e \"const { spawnSync } = require('node:child_process'); const env = { ...process.env, DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost:5432/atlas' }; const result = spawnSync('prisma validate', { stdio: 'inherit', env, shell: true }); process.exit(result.status ?? 1);\"",
+    "db:deploy": "prisma migrate deploy",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down"
   },
