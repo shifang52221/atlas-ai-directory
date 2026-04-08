@@ -1,8 +1,12 @@
 "use server";
 
-import { LinkKind, ToolStatus } from "@prisma/client";
+import {
+  LinkKind,
+  ToolStatus,
+} from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import {
   parseAdminToolCreateForm,
   parseAdminToolDeleteForm,
@@ -17,6 +21,7 @@ import {
   parseAdminToolsStatusFilter,
 } from "@/lib/admin-tools-status-filter";
 import { getDb } from "@/lib/db";
+import { getToolQualityBlockers, type ToolQualityBlocker } from "@/lib/tool-quality-policy";
 
 function slugify(value: string): string {
   return value
@@ -151,12 +156,33 @@ function isValidHttpUrl(value: string): boolean {
   }
 }
 
+function toOptionalDate(value?: string): Date | null {
+  const normalized = value?.trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function rethrowRedirectError(error: unknown) {
+  if (isRedirectError(error)) {
+    throw error;
+  }
+}
+
 type PublishMissingCode =
   | "name"
   | "website_url"
   | "description"
   | "categories"
-  | "primary_link";
+  | "primary_link"
+  | ToolQualityBlocker;
 
 function collectPublishMissingItems(input: {
   name: string;
@@ -238,6 +264,14 @@ export async function createToolAction(formData: FormData) {
   const categories = parsed.data.categories || "";
   const trackingUrl = parsed.data.trackingUrl || "";
   const linkKind = parsed.data.linkKind;
+  const reviewStatus = parsed.data.reviewStatus;
+  const indexingStatus = parsed.data.indexingStatus;
+  const qualityScore = parsed.data.qualityScore;
+  const evidenceStatus = parsed.data.evidenceStatus;
+  const authorId = parsed.data.authorId || null;
+  const reviewedById = parsed.data.reviewedById || null;
+  const lastReviewedAt = toOptionalDate(parsed.data.lastReviewedAt);
+  const changeSummary = parsed.data.changeSummary || null;
 
   try {
     const created = await db.tool.create({
@@ -248,6 +282,14 @@ export async function createToolAction(formData: FormData) {
         websiteUrl,
         description: description || null,
         status,
+        reviewStatus,
+        indexingStatus,
+        qualityScore,
+        evidenceStatus,
+        authorId,
+        reviewedById,
+        lastReviewedAt,
+        changeSummary,
         setupMinutes,
         pricingFrom,
         currency,
@@ -272,7 +314,8 @@ export async function createToolAction(formData: FormData) {
         created: true,
       }),
     );
-  } catch {
+  } catch (error) {
+    rethrowRedirectError(error);
     redirect(
       buildAdminToolsListHref({
         statusFilter: currentStatusFilter,
@@ -328,7 +371,8 @@ export async function toggleToolStatusAction(formData: FormData) {
         updated: true,
       }),
     );
-  } catch {
+  } catch (error) {
+    rethrowRedirectError(error);
     redirect(
       buildAdminToolsListHref({
         statusFilter: currentStatusFilter,
@@ -395,6 +439,14 @@ export async function updateToolAction(formData: FormData) {
   const categories = parsed.data.categories || "";
   const trackingUrl = parsed.data.trackingUrl || "";
   const linkKind = parsed.data.linkKind;
+  const reviewStatus = parsed.data.reviewStatus;
+  const indexingStatus = parsed.data.indexingStatus;
+  const qualityScore = parsed.data.qualityScore;
+  const evidenceStatus = parsed.data.evidenceStatus;
+  const authorId = parsed.data.authorId || null;
+  const reviewedById = parsed.data.reviewedById || null;
+  const lastReviewedAt = toOptionalDate(parsed.data.lastReviewedAt);
+  const changeSummary = parsed.data.changeSummary || null;
 
   try {
     const updated = await db.tool.update({
@@ -406,6 +458,14 @@ export async function updateToolAction(formData: FormData) {
         websiteUrl,
         description: description || null,
         status,
+        reviewStatus,
+        indexingStatus,
+        qualityScore,
+        evidenceStatus,
+        authorId,
+        reviewedById,
+        lastReviewedAt,
+        changeSummary,
         setupMinutes,
         pricingFrom,
         currency,
@@ -435,7 +495,8 @@ export async function updateToolAction(formData: FormData) {
         saved: true,
       }),
     );
-  } catch {
+  } catch (error) {
+    rethrowRedirectError(error);
     redirect(
       buildAdminToolDetailHref({
         slug: currentSlug,
@@ -490,7 +551,8 @@ export async function deleteToolAction(formData: FormData) {
         deleted: true,
       }),
     );
-  } catch {
+  } catch (error) {
+    rethrowRedirectError(error);
     redirect(
       buildAdminToolsListHref({
         statusFilter: currentStatusFilter,
@@ -541,6 +603,14 @@ export async function publishToolAction(formData: FormData) {
         name: true,
         websiteUrl: true,
         description: true,
+        reviewStatus: true,
+        indexingStatus: true,
+        qualityScore: true,
+        evidenceStatus: true,
+        authorId: true,
+        reviewedById: true,
+        lastReviewedAt: true,
+        changeSummary: true,
         categories: {
           select: {
             category: {
@@ -587,6 +657,27 @@ export async function publishToolAction(formData: FormData) {
       );
     }
 
+    const qualityBlockers = getToolQualityBlockers({
+      reviewStatus: tool.reviewStatus,
+      indexingStatus: tool.indexingStatus,
+      qualityScore: tool.qualityScore,
+      evidenceStatus: tool.evidenceStatus,
+      authorId: tool.authorId,
+      reviewedById: tool.reviewedById,
+      lastReviewedAt: tool.lastReviewedAt,
+      changeSummary: tool.changeSummary,
+    });
+
+    if (qualityBlockers.length > 0) {
+      redirect(
+        buildAdminToolDetailHref({
+          slug: tool.slug,
+          statusFilter: currentStatusFilter,
+          publishErrorCodes: qualityBlockers,
+        }),
+      );
+    }
+
     await db.tool.update({
       where: { id: tool.id },
       data: { status: ToolStatus.ACTIVE },
@@ -605,7 +696,8 @@ export async function publishToolAction(formData: FormData) {
         published: true,
       }),
     );
-  } catch {
+  } catch (error) {
+    rethrowRedirectError(error);
     redirect(
       buildAdminToolDetailHref({
         slug,

@@ -111,6 +111,30 @@ test("compare page includes canonical and CollectionPage schema", async ({
   expect(schemaJson).toContain('"@type":"BreadcrumbList"');
 });
 
+test("tool-vs compare detail page includes canonical, breadcrumb, and FAQ schema", async ({
+  page,
+}) => {
+  await page.goto("/compare/zapier-ai-vs-make");
+
+  await expect(page).toHaveTitle(/Zapier AI vs Make/i);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Zapier AI vs Make" }),
+  ).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /http:\/\/localhost:3000\/compare\/zapier-ai-vs-make\/?$/,
+  );
+
+  const schemaJson = await page
+    .locator('script[type="application/ld+json"]')
+    .allTextContents()
+    .then((chunks) => chunks.join(" "));
+
+  expect(schemaJson).toContain('"@type":"BreadcrumbList"');
+  expect(schemaJson).toContain('"@type":"FAQPage"');
+  expect(schemaJson).toContain('"name":"Zapier AI vs Make"');
+});
+
 test("workflows page includes canonical and CollectionPage schema", async ({
   page,
 }) => {

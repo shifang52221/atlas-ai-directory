@@ -22,6 +22,7 @@ describe("adsense policy", () => {
         highlights: ["a", "b", "c"],
         comparisonNotes: ["1", "2", "3"],
         faqCount: 4,
+        hasEditorialApproval: true,
       }),
     ).toBe(true);
 
@@ -32,6 +33,18 @@ describe("adsense policy", () => {
         highlights: ["a"],
         comparisonNotes: ["1"],
         faqCount: 1,
+        hasEditorialApproval: true,
+      }),
+    ).toBe(false);
+
+    expect(
+      isToolDetailAdsEligible({
+        description:
+          "Best for multi-app automations with low setup friction and dependable operational handoffs for operations teams.",
+        highlights: ["a", "b", "c"],
+        comparisonNotes: ["1", "2", "3"],
+        faqCount: 4,
+        hasEditorialApproval: false,
       }),
     ).toBe(false);
   });

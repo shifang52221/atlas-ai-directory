@@ -18,6 +18,21 @@ test("use-case detail page renders tool recommendations and ad slot", async ({
     page.getByRole("heading", { level: 2, name: "KPI scorecard" }),
   ).toBeVisible();
   await expect(
+    page.getByRole("heading", { level: 2, name: "Buying Guides for This Use Case" }),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-ui="use-case-buying-guides"] a[href="/best-ai-tools-for-support"]').first(),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator('[data-ui="use-case-buying-guides"] p')
+      .filter({
+        hasText:
+          "Includes Lindy, Zapier AI, and Relevance AI for support automation teams.",
+      })
+      .first(),
+  ).toBeVisible();
+  await expect(
     page.getByRole("heading", { level: 2, name: "FAQ" }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Open profile" }).first()).toHaveAttribute(

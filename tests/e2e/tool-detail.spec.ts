@@ -42,6 +42,15 @@ test("tool detail page renders profile and monetization slots", async ({
     page.getByRole("heading", { level: 2, name: "Top Alternatives" }),
   ).toBeVisible();
   await expect(
+    page.getByRole("heading", { level: 2, name: "Featured in Buying Guides" }),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-ui="featured-buying-guides"] a[href="/best-ai-automation-tools"]').first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Fast cross-app launch with low ops overhead"),
+  ).toBeVisible();
+  await expect(
     page.getByRole("heading", {
       level: 2,
       name: "Compare Zapier AI Against Alternatives",
@@ -53,6 +62,9 @@ test("tool detail page renders profile and monetization slots", async ({
   await expect(
     page.getByRole("link", { name: /Compare Zapier AI vs/i }).first(),
   ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Compare Zapier AI vs Make" }),
+  ).toHaveAttribute("href", "/compare/zapier-ai-vs-make");
   await expect(
     page.getByRole("link", { name: /Best use cases for Zapier AI/i }),
   ).toBeVisible();

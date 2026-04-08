@@ -273,6 +273,36 @@
   text-underline-offset: 2px;
 }
 
+.relatedGuidesList {
+  margin: 10px 0 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.relatedGuideItem {
+  border: 1px solid color-mix(in oklab, var(--line) 84%, white 16%);
+  border-radius: 10px;
+  padding: 12px;
+  background: color-mix(in oklab, white 90%, var(--surface) 10%);
+}
+
+.relatedGuideItem a {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.relatedGuideReason {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.relatedGuidesFallback {
+  margin-top: 10px;
+}
+
 .compareList {
   margin: 10px 0 0;
   padding-left: 0;

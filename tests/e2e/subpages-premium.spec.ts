@@ -10,8 +10,8 @@ const routes = [
   {
     path: "/compare",
     title: "Compare Tools",
-    shellSelector: '[data-ui="subpage-shell"]',
-    topbarSelector: '[data-ui="subpage-topbar"]',
+    shellSelector: '[data-ui="compare-page"]',
+    topbarSelector: '[data-ui="compare-topbar"]',
   },
   {
     path: "/tools",
@@ -38,17 +38,52 @@ for (const route of routes) {
   });
 }
 
-test("compare page links to editorial methodology policy", async ({ page }) => {
+test("compare page renders comparison hub sections and methodology links", async ({
+  page,
+}) => {
   await page.goto("/compare");
-  const methodologyHeading = page.getByRole("heading", {
-    level: 3,
-    name: "Methodology references",
+  const headToHeadHeading = page.getByRole("heading", {
+    level: 2,
+    name: "Popular Head-to-Head Comparisons",
   });
+  const useCaseHeading = page.getByRole("heading", {
+    level: 2,
+    name: "Compare by Use Case",
+  });
+  const buyingGuideHeading = page.getByRole("heading", {
+    level: 2,
+    name: "Best Buying Guides Before You Compare",
+  });
+  const methodologyHeading = page.getByRole("heading", {
+    level: 2,
+    name: "How We Evaluate",
+  });
+
+  await expect(headToHeadHeading).toBeVisible();
+  await expect(useCaseHeading).toBeVisible();
+  await expect(buyingGuideHeading).toBeVisible();
   await expect(methodologyHeading).toBeVisible();
-  const methodologySection = methodologyHeading.locator("..");
+
+  const headToHeadSection = page.locator('[data-ui="compare-head-to-head"]');
+  const useCaseSection = page.locator('[data-ui="compare-use-cases"]');
+  const buyingGuideSection = page.locator('[data-ui="compare-buying-guides"]');
+  const methodologySection = page.locator('[data-ui="compare-methodology"]');
+
+  await expect(headToHeadSection.getByRole("link").first()).toBeVisible();
+  await expect(useCaseSection.getByRole("link").first()).toBeVisible();
+  await expect(buyingGuideSection.getByRole("link").first()).toBeVisible();
+  await expect(
+    headToHeadSection.getByRole("link", { name: "Zapier AI vs Make" }).first(),
+  ).toHaveAttribute("href", "/compare/zapier-ai-vs-make");
   await expect(
     methodologySection.getByRole("link", {
       name: "Editorial Policy",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    methodologySection.getByRole("link", {
+      name: "Affiliate Disclosure",
       exact: true,
     }),
   ).toBeVisible();

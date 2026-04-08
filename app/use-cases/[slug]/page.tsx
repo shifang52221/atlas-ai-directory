@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AdsenseSlotCard } from "@/components/adsense-slot-card";
 import { SiteFooter } from "@/components/site-footer";
 import { isUseCaseDetailAdsEligible } from "@/lib/adsense-policy";
+import { getRelatedEditorialHubLinksForUseCase } from "@/lib/editorial-hubs";
 import {
   getFallbackUseCaseSlugs,
   getUseCaseProfileBySlug,
@@ -60,6 +61,11 @@ export default async function UseCaseDetailPage({
     summary: profile.summary,
     checklist: profile.checklist,
     toolsCount: profile.tools.length,
+  });
+  const relatedBuyingGuides = getRelatedEditorialHubLinksForUseCase({
+    useCaseSlug: profile.slug,
+    useCaseName: profile.name,
+    toolSlugs: profile.tools.map((tool) => tool.slug),
   });
   const useCaseJsonLd = {
     "@context": "https://schema.org",
@@ -229,6 +235,28 @@ export default async function UseCaseDetailPage({
                   </Link>
                 ))}
               </div>
+            </article>
+
+            <article className={styles.card} data-ui="use-case-buying-guides">
+              <h2>Buying Guides for This Use Case</h2>
+              {relatedBuyingGuides.length > 0 ? (
+                <ul className={styles.buyingGuideList}>
+                  {relatedBuyingGuides.map((item) => (
+                    <li key={item.href} className={styles.buyingGuideItem}>
+                      <Link href={item.href}>{item.title}</Link>
+                      <p className={styles.buyingGuideReason}>{item.reason}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className={styles.buyingGuideFallback}>
+                  <p>Continue into comparison and shortlist pages before committing.</p>
+                  <div className={styles.relatedLinks}>
+                    <Link href="/compare">Compare AI tools side by side</Link>
+                    <Link href="/tools">Browse all AI tools</Link>
+                  </div>
+                </div>
+              )}
             </article>
 
             <article className={styles.card}>

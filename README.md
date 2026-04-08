@@ -22,19 +22,25 @@ npm install
 npm run db:up
 ```
 
-3. Configure env (already seeded for local docker)
+3. Set `DATABASE_URL` for the local Docker database
 
 ```bash
-cp .env.example .env
+DATABASE_URL=postgresql://ai_nav:ai_nav_password@localhost:5432/ai_nav
 ```
 
-4. Generate Prisma client
+4. Apply the committed Prisma migrations
+
+```bash
+npm run db:migrate
+```
+
+5. Generate Prisma Client
 
 ```bash
 npm run db:generate
 ```
 
-5. Run app
+6. Run app
 
 ```bash
 npm run dev
@@ -42,13 +48,29 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+If you are adopting Prisma Migrate for an already-populated database, do not treat the local bootstrap steps above as the right path. Follow the baseline-adoption runbook instead: `docs/runbooks/prisma-migrations.md`.
+
 ## Database Commands
 
 ```bash
 npm run db:migrate
+npm run db:deploy
+npm run db:status
+npm run db:validate
+npm run db:generate
 npm run db:studio
 npm run db:down
 ```
+
+Command intent:
+
+- `db:migrate`: create and apply new migrations during local development
+- `db:deploy`: apply committed migrations in staging or production
+- `db:status`: inspect Prisma migration state
+- `db:validate`: validate the Prisma schema and migration setup
+- `db:generate`: regenerate Prisma Client after schema or migration changes
+- `db:studio`: inspect database records locally
+- `db:down`: stop local PostgreSQL
 
 ## Test and Quality
 
